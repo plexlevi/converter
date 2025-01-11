@@ -91,7 +91,7 @@ function ForDAWToolStripMenuItem_Click {
     $Form1.Panel1.Controls.Clear()
 
     # Load and execute the video.ps1 file
-    . (Join-Path $PSScriptRoot 'video.designer.ps1')
+    . (Join-Path $PSScriptRoot 'fordaw.ps1')
 }
 
 . InitializeComponent

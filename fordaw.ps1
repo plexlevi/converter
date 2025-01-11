@@ -1,9 +1,65 @@
 Add-Type -AssemblyName System.Windows.Forms
 
+# Create controls in the existing $Panel1
+$Panel1.Controls.Clear()
+
+# Create a horizontal slider for CRF value, inverted
+$slider = New-Object System.Windows.Forms.TrackBar
+$slider.Orientation = [System.Windows.Forms.Orientation]::Horizontal
+$slider.Minimum = 10
+$slider.Maximum = 26
+$slider.Value = 20
+$slider.TickFrequency = 1
+$slider.Width = 300
+$slider.Top = 20
+$slider.Left = 50
+
+# Create label for CRF value
+$sliderLabel = New-Object System.Windows.Forms.Label
+$sliderLabel.Text = "CRF Value: 16"
+$sliderLabel.Top = 70
+$sliderLabel.Left = 50
+$sliderLabel.Width = 300
+
+# Update label on slider value change
+$slider.add_ValueChanged({
+    $invertedValue = 36 - $slider.Value
+    $sliderLabel.Text = "CRF Value: $invertedValue"
+})
+
+$Panel1.Controls.Add($slider)
+$Panel1.Controls.Add($sliderLabel)
+
+# Create a checkbox for preview
+$checkBox = New-Object System.Windows.Forms.CheckBox
+$checkBox.Text = "Preview"
+$checkBox.Top = 130
+$checkBox.Left = 50
+$Panel1.Controls.Add($checkBox)
+
+# Create a button to start processing
+$button = New-Object System.Windows.Forms.Button
+$button.Text = "Start Processing"
+$button.Top = 160
+$button.Left = 50
+$button.Add_Click({
+    $files = Select-Files
+    if ($files) {
+        foreach ($file in $files) {
+            $invertedValue = 36 - $slider.Value
+            Process-Video -inputFile $file -crfValue $invertedValue -preview $checkBox.Checked
+        }
+        $Form1.Close()
+    } else {
+        [System.Windows.Forms.MessageBox]::Show("No files were selected.", "Info", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        $Form1.Close()
+    }
+})
+$Panel1.Controls.Add($button)
+
 # Function to open file dialog and select multiple files
 function Select-Files {
     [System.Windows.Forms.OpenFileDialog]$fileDialog = New-Object System.Windows.Forms.OpenFileDialog
-    $filter = "Video files (*.mp4;*.avi;*.mkv;*.mov;*.wmv)|*.mp4;*.avi;*.mkv;*.mov;*.wmv|All files (*.*)|*.*"
 
     $fileDialog.Multiselect = $true
     if ($fileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
@@ -62,59 +118,3 @@ function Process-Video {
     Invoke-Expression $ffmpegCommand
 }
 
-# Create controls in the existing $Panel1
-$Panel1.Controls.Clear()
-
-# Create a horizontal slider for CRF value, inverted
-$slider = New-Object System.Windows.Forms.TrackBar
-$slider.Orientation = [System.Windows.Forms.Orientation]::Horizontal
-$slider.Minimum = 10
-$slider.Maximum = 26
-$slider.Value = 20
-$slider.TickFrequency = 1
-$slider.Width = 300
-$slider.Top = 20
-$slider.Left = 50
-
-# Create label for CRF value
-$sliderLabel = New-Object System.Windows.Forms.Label
-$sliderLabel.Text = "CRF Value: 16"
-$sliderLabel.Top = 70
-$sliderLabel.Left = 50
-$sliderLabel.Width = 300
-
-# Update label on slider value change
-$slider.add_ValueChanged({
-    $invertedValue = 36 - $slider.Value
-    $sliderLabel.Text = "CRF Value: $invertedValue"
-})
-
-$Panel1.Controls.Add($slider)
-$Panel1.Controls.Add($sliderLabel)
-
-# Create a checkbox for preview
-$checkBox = New-Object System.Windows.Forms.CheckBox
-$checkBox.Text = "Preview"
-$checkBox.Top = 130
-$checkBox.Left = 50
-$Panel1.Controls.Add($checkBox)
-
-# Create a button to start processing
-$button = New-Object System.Windows.Forms.Button
-$button.Text = "Start Processing"
-$button.Top = 160
-$button.Left = 50
-$button.Add_Click({
-    $files = Select-Files
-    if ($files) {
-        foreach ($file in $files) {
-            $invertedValue = 36 - $slider.Value
-            Process-Video -inputFile $file -crfValue $invertedValue -preview $checkBox.Checked
-        }
-        $Form1.Close()
-    } else {
-        [System.Windows.Forms.MessageBox]::Show("No files were selected.", "Info", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-        $Form1.Close()
-    }
-})
-$Panel1.Controls.Add($button)
