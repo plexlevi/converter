@@ -64,6 +64,63 @@ function DropOrNot {
     return ($framerate -eq "30000/1001" -or $framerate -eq "60000/1001")
 }
 
+function Get-VideoDuration {
+    param (
+        [string]$inputFile
+    )
+    $ffprobeOutput = & $ffprobeBinary -v error -select_streams v:0 -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 $inputFile
+    if ($ffprobeOutput) {
+        return [math]::Round([double]$ffprobeOutput)
+    } else {
+        throw "Could not determine the duration of the input video."
+    }
+}
+
+function Start-Conversion {
+    param (
+        [string]$inputFile,
+        [string]$outputFile,
+        [string]$ffmpegCommand,
+        [int]$currentFileIndex,
+        [int]$totalFiles
+    )
+    $totalDuration = Get-VideoDuration -inputFile $inputFile
+
+    $processInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $processInfo.FileName = "cmd.exe"
+    $processInfo.Arguments = "/c $ffmpegCommand"
+    $processInfo.RedirectStandardOutput = $true
+    $processInfo.RedirectStandardError = $true
+    $processInfo.UseShellExecute = $false
+    $processInfo.CreateNoWindow = $true
+
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $processInfo
+    $process.Start() | Out-Null
+
+    $totalProcessedTime = 0
+
+    while (-not $process.HasExited) {
+        $output = $process.StandardError.ReadLine()
+        if ($output -match "time=(\d+:\d+:\d+.\d+)") {
+            $currentTime = $matches[1]
+            $currentSeconds = [TimeSpan]::Parse($currentTime).TotalSeconds
+            $percentComplete = [math]::Round(($currentSeconds / $totalDuration) * 100)
+            $remainingTime = [TimeSpan]::FromSeconds($totalDuration - $currentSeconds)
+            $statusText = "{0}% - {1}" -f $percentComplete, $remainingTime.ToString("hh\:mm\:ss")
+            Write-Progress -Activity "Converting videos" -Status $statusText -PercentComplete $percentComplete
+
+            $totalProcessedTime = ($currentFileIndex - 1) * $totalDuration + $currentSeconds
+            $totalPercentComplete = [math]::Round(($totalProcessedTime / ($totalFiles * $totalDuration)) * 100)
+            $totalRemainingTime = [TimeSpan]::FromSeconds(($totalFiles * $totalDuration) - $totalProcessedTime)
+            $totalStatusText = "{0}% - {1}" -f $totalPercentComplete, $totalRemainingTime.ToString("hh\:mm\:ss")
+            Write-Progress -Activity "Overall progress" -Status $totalStatusText -PercentComplete $totalPercentComplete -Id 1
+        }
+    }
+
+    $process.WaitForExit()
+}
+
 # Add event handlers after initialization
 $fordaw_Form.fordaw_crf.add_Scroll({
     $fordaw_Form.fordaw_crf_current.Text = $fordaw_Form.fordaw_crf.Value.ToString()
@@ -83,8 +140,11 @@ $fordaw_Form.fordaw_start.add_Click({
         Write-Host "No files selected for conversion."
         return
     }
-    $jobs = @()
+    
+    $totalFiles = $fordaw_Form.fordaw_fileList.Items.Count
+    $currentFileIndex = 0
     foreach ($file in $fordaw_Form.fordaw_fileList.Items) {
+        $currentFileIndex++
         $inputFile = $file
         $outputDir = [System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($inputFile), "Video Files")
         if (-not (Test-Path -Path $outputDir)) {
@@ -115,16 +175,10 @@ $fordaw_Form.fordaw_start.add_Click({
         
         $global:completeFfmpegCommand = $ffmpegBinary + $hardwareAcceleration + $inputOption + $durationOption + $videoCodec + $crfOption + $pixelFormat + $presetOption + $profileOption + $levelOption + $x264Params + $rescale + $filterComplexStart + $filterDrawtext + $filterText + $filterR + $filterX + $filterY + $filterFontColor + $filterFontSize + $filterBox + $filterBoxColor + $filterComplexTimecodeStart + $filterTimecode + $filterTimecodeR + $filterTimecodeX + $filterTimecodeY + $filterTimecodeFontColor + $filterTimecodeFontSize + $filterTimecodeBox + $filterTimecodeBoxColor + $filterTimecodeOption + $filterComplexScale + $mapOption + $audioCodec + $audioRate + $audioBitrate + $swsFlags + $vsyncOption + $metadataOption + $videoMetadata + $audioMetadata + $movFlags + $outputOverwrite + "`"" + $outputFile + "`""
         
-        $job = Start-Job -ScriptBlock {
-            param ($command)
-            Invoke-Expression $command
-        } -ArgumentList $global:completeFfmpegCommand
-        $jobs += $job
+        Start-Conversion -inputFile $inputFile -outputFile $outputFile -ffmpegCommand $global:completeFfmpegCommand -currentFileIndex $currentFileIndex -totalFiles $totalFiles
+        
         Write-Host "Started conversion for: $outputFile"
     }
-    
-    # Wait for all jobs to complete
-    $jobs | ForEach-Object { $_ | Wait-Job }
     
     Write-Host "All conversions completed."
     [System.Windows.Forms.MessageBox]::Show("All conversions completed.", "Conversion Finished", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
