@@ -11,6 +11,8 @@ $fordaw_Form = New-Object -TypeName System.Windows.Forms.Form
 [System.Windows.Forms.Button]$fordaw_open = $null
 [System.Windows.Forms.ListBox]$fordaw_fileList = $null
 [System.Windows.Forms.OpenFileDialog]$OpenFileDialog1 = $null
+
+
 function InitializeComponent
 {
 $fordaw_Panel = (New-Object -TypeName System.Windows.Forms.Panel)
@@ -24,6 +26,17 @@ $fordaw_preview = (New-Object -TypeName System.Windows.Forms.CheckBox)
 $fordaw_start = (New-Object -TypeName System.Windows.Forms.Button)
 $fordaw_open = (New-Object -TypeName System.Windows.Forms.Button)
 $fordaw_fileList = (New-Object -TypeName System.Windows.Forms.ListBox)
+$fordaw_fileList.Add_KeyDown({
+    param ($s, $e)
+    if ($e.KeyCode -eq [System.Windows.Forms.Keys]::Delete -or $e.KeyCode -eq [System.Windows.Forms.Keys]::Back) {
+        $selectedIndex = $fordaw_fileList.SelectedIndex
+        if ($selectedIndex -ge 0) {
+            $fordaw_fileList.Items.RemoveAt($selectedIndex)
+        }
+    }
+})
+$fordaw_fileList.DrawMode = [System.Windows.Forms.DrawMode]::Normal
+$fordaw_fileList.ItemHeight = 25
 $OpenFileDialog1 = (New-Object -TypeName System.Windows.Forms.OpenFileDialog)
 $fordaw_Panel.SuspendLayout()
 ([System.ComponentModel.ISupportInitialize]$fordaw_crf).BeginInit()
@@ -133,6 +146,17 @@ $fordaw_fileList.Location = (New-Object -TypeName System.Drawing.Point -Argument
 $fordaw_fileList.Name = [System.String]'fordaw_fileList'
 $fordaw_fileList.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]436,[System.Int32]134))
 $fordaw_fileList.TabIndex = [System.Int32]6
+$fordaw_fileList.ItemHeight = 25
+$fordaw_fileList.Add_KeyDown({
+    param ($s, $e)
+    if ($e.KeyCode -eq [System.Windows.Forms.Keys]::Delete -or $e.KeyCode -eq [System.Windows.Forms.Keys]::Back) {
+        $selectedIndex = $fordaw_fileList.SelectedIndex
+        if ($selectedIndex -ge 0) {
+            $fordaw_fileList.Items.RemoveAt($selectedIndex)
+        }
+    }
+})
+$fordaw_fileList.DrawMode = [System.Windows.Forms.DrawMode]::Normal
 #
 #OpenFileDialog1
 #
