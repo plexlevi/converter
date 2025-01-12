@@ -4,9 +4,9 @@ Add-Type -AssemblyName System.Windows.Forms
 $fontPath = $PSScriptRoot + '\Tuffy-Regular.ttf' -replace '\\', '\\' -replace ':','\:'
 
 $ffmpegBinary = "ffmpeg"
+$ffprobeBinary = "ffprobe"
 $hardwareAcceleration = "-hwaccel auto"
 $videoCodec = "-c:v libx264"
-$crfOption = "-crf $($fordaw_Form.fordaw_crf.Value)"
 $pixelFormat = "-pix_fmt yuvj420p"
 $presetOption = "-preset fast"
 $profileOption = "-profile:v high"
@@ -25,10 +25,8 @@ $filterBox = ":box=1"
 $filterBoxColor = ":boxcolor=0x3333333f,"
 
 $filterComplexTimecodeStart = "drawtext=fontfile='$fontPath'"
-$filterTimecode = ":timecode='00\:00\:00\:00'"
-$filterTimecodeR = ":r=25.0"
 $filterTimecodeX = ":x=(w-text_w)/2"
-$filterTimecodeY = ":y=text_h"
+$filterTimecodeY = ":y=h-(text_h+h/14*12.5)"
 $filterTimecodeFontColor = ":fontcolor=0xeeeeeeff"
 $filterTimecodeFontSize = ":fontsize=h/12"
 $filterTimecodeBox = ":box=1:boxborderw=10"
@@ -48,6 +46,32 @@ $audioMetadata = "-map_metadata:s:a 0:s:a"
 $movFlags = "-movflags use_metadata_tags"
 $outputOverwrite = "-y" 
 
+# Function to get the framerate of the input video using ffprobe
+function Get-VideoFramerate {
+    param (
+        [string]$inputFile
+    )
+    $ffprobeOutput = & $ffprobeBinary -v error -select_streams v:0 -show_entries stream=avg_frame_rate -of default=noprint_wrappers=1:nokey=1 $inputFile
+    if ($ffprobeOutput) {
+        write-host "FFprobe output: $ffprobeOutput"
+        $frameRate = $ffprobeOutput
+        #$framerate = [double]([math]::Round(([double]$ffprobeOutput.Split('/')[0] / [double]$ffprobeOutput.Split('/')[1]), 2))
+        Write-Host "Framerate: $framerate"
+        return $frameRate
+        #return "{0:N2}" -f $framerate -replace ',', '.'
+    } else {
+        throw "Could not determine the framerate of the input video."
+    }
+}
+
+# Function to check if the framerate is dropframe
+function Is-DropFrame {
+    param (
+        $framerate
+    )
+    return $framerate -eq "30000/1001" -or $framerate -eq "60000/1001"
+}
+
 # Function to update the complete FFmpeg command
 function Update-FFmpegCommand {
     if ($fordaw_Form.fordaw_fileList.Items.Count -gt 0) {
@@ -65,9 +89,21 @@ function Update-FFmpegCommand {
             $durationOption = ""
         }
         $crfOption = "-crf $($fordaw_Form.fordaw_crf.Value)"
+        
+        # Get the framerate of the input video
+        $framerate = Get-VideoFramerate -inputFile $inputFile
+        $filterR = ":r=$framerate"
+        $filterTimecodeR = ":r=$framerate"
+        
+        # Determine the timecode separator based on dropframe
+        if (Is-DropFrame -framerate $framerate) {
+            $filterTimecode = ":timecode='00\:00\:00\;00'"
+        } else {
+            $filterTimecode = ":timecode='00\:00\:00\:00'"
+        }
     }
-    $global:completeFfmpegCommand = $ffmpegBinary + " " + $hardwareAcceleration + " " + $inputOption + " " + $durationOption + " " + $videoCodec + " " + $crfOption + " " + $pixelFormat + " " + $presetOption + " " + $profileOption + " " + $levelOption + " " + $x264Params + " " + $bitrateOption + " " + $filterComplexStart + $filterDrawtext + $filterText + $filterX + $filterY + $filterFontColor + $filterFontSize + $filterBox + $filterBoxColor + $filterComplexTimecodeStart + $filterTimecode + $filterTimecodeR + $filterTimecodeX + $filterTimecodeY + $filterTimecodeFontColor + $filterTimecodeFontSize + $filterTimecodeBox + $filterTimecodeBoxColor + $filterTimecodeOption + $filterComplexScale + " " + $mapOption + " " + $audioCodec + " " + $audioRate + " " + $audioBitrate + " " + $swsFlags + " " + $vsyncOption + " " + $metadataOption + " " + $videoMetadata + " " + $audioMetadata + " " + $movFlags + " " + $outputOverwrite + " `"" + $outputFile + "`""
-    Clear-Host
+    $global:completeFfmpegCommand = $ffmpegBinary + " " + $hardwareAcceleration + " " + $inputOption + " " + $durationOption + " " + $videoCodec + " " + $crfOption + " " + $pixelFormat + " " + $presetOption + " " + $profileOption + " " + $levelOption + " " + $x264Params + " " + $bitrateOption + " " + $filterComplexStart + $filterDrawtext + $filterText + $filterR + $filterX + $filterY + $filterFontColor + $filterFontSize + $filterBox + $filterBoxColor + $filterComplexTimecodeStart + $filterTimecode + $filterTimecodeR + $filterTimecodeX + $filterTimecodeY + $filterTimecodeFontColor + $filterTimecodeFontSize + $filterTimecodeBox + $filterTimecodeBoxColor + $filterTimecodeOption + $filterComplexScale + " " + $mapOption + " " + $audioCodec + " " + $audioRate + " " + $audioBitrate + " " + $swsFlags + " " + $vsyncOption + " " + $metadataOption + " " + $videoMetadata + " " + $audioMetadata + " " + $movFlags + " " + $outputOverwrite + " `"" + $outputFile + "`""
+    #Clear-Host
     Write-Host "FFmpeg command: $completeFfmpegCommand"
 }
 
@@ -120,7 +156,20 @@ $fordaw_Form.fordaw_start.add_Click({
         }
         $crfOption = "-crf $($fordaw_Form.fordaw_crf.Value)"
         $filterText = ":text='" + $videoname + "'"
-        $global:completeFfmpegCommand = $ffmpegBinary + " " + $hardwareAcceleration + " " + $inputOption + " " + $durationOption + " " + $videoCodec + " " + $crfOption + " " + $pixelFormat + " " + $presetOption + " " + $profileOption + " " + $levelOption + " " + $x264Params + " " + $bitrateOption + " " + $filterComplexStart + $filterDrawtext + $filterText + $filterX + $filterY + $filterFontColor + $filterFontSize + $filterBox + $filterBoxColor + $filterComplexTimecodeStart + $filterTimecode + $filterTimecodeR + $filterTimecodeX + $filterTimecodeY + $filterTimecodeFontColor + $filterTimecodeFontSize + $filterTimecodeBox + $filterTimecodeBoxColor + $filterTimecodeOption + $filterComplexScale + " " + $mapOption + " " + $audioCodec + " " + $audioRate + " " + $audioBitrate + " " + $swsFlags + " " + $vsyncOption + " " + $metadataOption + " " + $videoMetadata + " " + $audioMetadata + " " + $movFlags + " " + $outputOverwrite + " `"" + $outputFile + "`""
+        
+        # Get the framerate of the input video
+        $framerate = Get-VideoFramerate -inputFile $inputFile
+        $filterR = ":r=$framerate"
+        $filterTimecodeR = ":r=$framerate"
+        
+        # Determine the timecode separator based on dropframe
+        if (Is-DropFrame -framerate $framerate) {
+            $filterTimecode = ":timecode='00\:00\:00\;00'"
+        } else {
+            $filterTimecode = ":timecode='00\:00\:00\:00'"
+        }
+        
+        $global:completeFfmpegCommand = $ffmpegBinary + " " + $hardwareAcceleration + " " + $inputOption + " " + $durationOption + " " + $videoCodec + " " + $crfOption + " " + $pixelFormat + " " + $presetOption + " " + $profileOption + " " + $levelOption + " " + $x264Params + " " + $bitrateOption + " " + $filterComplexStart + $filterDrawtext + $filterText + $filterR + $filterX + $filterY + $filterFontColor + $filterFontSize + $filterBox + $filterBoxColor + $filterComplexTimecodeStart + $filterTimecode + $filterTimecodeR + $filterTimecodeX + $filterTimecodeY + $filterTimecodeFontColor + $filterTimecodeFontSize + $filterTimecodeBox + $filterTimecodeBoxColor + $filterTimecodeOption + $filterComplexScale + " " + $mapOption + " " + $audioCodec + " " + $audioRate + " " + $audioBitrate + " " + $swsFlags + " " + $vsyncOption + " " + $metadataOption + " " + $videoMetadata + " " + $audioMetadata + " " + $movFlags + " " + $outputOverwrite + " `"" + $outputFile + "`""
         Invoke-Expression $completeFfmpegCommand
         Write-Host "The conversion is finished: $outputFile"
     }
