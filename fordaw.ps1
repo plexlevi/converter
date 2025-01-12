@@ -65,11 +65,11 @@ function Get-VideoFramerate {
 }
 
 # Function to check if the framerate is dropframe
-function Is-DropFrame {
+function DropOrNot {
     param (
         $framerate
     )
-    return $framerate -eq "30000/1001" -or $framerate -eq "60000/1001"
+    return ($framerate -eq "30000/1001" -or $framerate -eq "60000/1001")
 }
 
 # Function to update the complete FFmpeg command
@@ -96,7 +96,7 @@ function Update-FFmpegCommand {
         $filterTimecodeR = ":r=$framerate"
         
         # Determine the timecode separator based on dropframe
-        if (Is-DropFrame -framerate $framerate) {
+        if (DropOrNot -framerate $framerate) {
             $filterTimecode = ":timecode='00\:00\:00\;00'"
         } else {
             $filterTimecode = ":timecode='00\:00\:00\:00'"
@@ -111,7 +111,7 @@ function Update-FFmpegCommand {
 $fordaw_Form.fordaw_crf.add_Scroll({
     if ($null -ne $fordaw_Form.fordaw_crf -and $null -ne $fordaw_Form.fordaw_crf_current) {
         $fordaw_Form.fordaw_crf_current.Text = $fordaw_Form.fordaw_crf.Value.ToString()
-        $crfOption = "-crf $($fordaw_Form.fordaw_crf.Value)"
+        
         Update-FFmpegCommand
     } else {
         Write-Host "The fordaw_crf or fordaw_crf_current variable does not exist or is null."
@@ -163,7 +163,7 @@ $fordaw_Form.fordaw_start.add_Click({
         $filterTimecodeR = ":r=$framerate"
         
         # Determine the timecode separator based on dropframe
-        if (Is-DropFrame -framerate $framerate) {
+        if (DropOrNot -framerate $framerate) {
             $filterTimecode = ":timecode='00\:00\:00\;00'"
         } else {
             $filterTimecode = ":timecode='00\:00\:00\:00'"
