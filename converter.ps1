@@ -21,7 +21,9 @@ Write-Host ""
 $Converter_Form.video_convert.add_Click({
     # Beolvassuk és futtatjuk a fordaw.ps1 szkriptet
     $fordawScriptPath = Join-Path $scriptRoot 'fordaw.ps1'
+    $Converter_Form.Hide()
     . $fordawScriptPath
+    $Converter_Form.Show()
 })
 
 # Eseménykezelő hozzáadása a Converter_Form bezárásához

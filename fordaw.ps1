@@ -38,10 +38,7 @@ $audioCodec = "-map 0:a? -c:a aac "
 $audioRate = "-ar 48k "
 $audioBitrate = "-b:a 256k "
 $swsFlags = "-sws_flags bicubic "
-$vsyncOption = "-vsync passthrough "
 $metadataOption = "-map_metadata 0 "
-$videoMetadata = "-map_metadata:s:v 0:s:v "
-$audioMetadata = "-map_metadata:s:a 0:s:a "
 $movFlags = "-movflags use_metadata_tags "
 $outputOverwrite = "-y "
 
@@ -86,6 +83,7 @@ $fordaw_Form.fordaw_start.add_Click({
         Write-Host "No files selected for conversion."
         return
     }
+    $jobs = @()
     foreach ($file in $fordaw_Form.fordaw_fileList.Items) {
         $inputFile = $file
         $outputDir = [System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($inputFile), "Video Files")
@@ -116,12 +114,25 @@ $fordaw_Form.fordaw_start.add_Click({
         }
         
         $global:completeFfmpegCommand = $ffmpegBinary + $hardwareAcceleration + $inputOption + $durationOption + $videoCodec + $crfOption + $pixelFormat + $presetOption + $profileOption + $levelOption + $x264Params + $rescale + $filterComplexStart + $filterDrawtext + $filterText + $filterR + $filterX + $filterY + $filterFontColor + $filterFontSize + $filterBox + $filterBoxColor + $filterComplexTimecodeStart + $filterTimecode + $filterTimecodeR + $filterTimecodeX + $filterTimecodeY + $filterTimecodeFontColor + $filterTimecodeFontSize + $filterTimecodeBox + $filterTimecodeBoxColor + $filterTimecodeOption + $filterComplexScale + $mapOption + $audioCodec + $audioRate + $audioBitrate + $swsFlags + $vsyncOption + $metadataOption + $videoMetadata + $audioMetadata + $movFlags + $outputOverwrite + "`"" + $outputFile + "`""
-        Invoke-Expression $completeFfmpegCommand
-        Write-Host "The conversion is finished: $outputFile"
+        
+        $job = Start-Job -ScriptBlock {
+            param ($command)
+            Invoke-Expression $command
+        } -ArgumentList $global:completeFfmpegCommand
+        $jobs += $job
+        Write-Host "Started conversion for: $outputFile"
     }
     
-    # Close the form after conversion
-    $fordaw_Form.Close()
+    # Wait for all jobs to complete
+    $jobs | ForEach-Object { $_ | Wait-Job }
+    
+    Write-Host "All conversions completed."
+    [System.Windows.Forms.MessageBox]::Show("All conversions completed.", "Conversion Finished", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+})
+
+# Remove the form closing event handler to prevent the form from closing
+$fordaw_Form.add_FormClosing({
+    $Converter_Form.Show()
 })
 
 # Show the PowerShell window
