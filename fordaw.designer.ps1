@@ -1,5 +1,8 @@
 $fordaw_Form = New-Object -TypeName System.Windows.Forms.Form
 [System.Windows.Forms.Panel]$fordaw_Panel = $null
+[System.Windows.Forms.Label]$fordaw_Label4 = $null
+[System.Windows.Forms.Label]$fordaw_Label3 = $null
+[System.Windows.Forms.Label]$fordaw_Label2 = $null
 [System.Windows.Forms.Label]$fordaw_crf_current = $null
 [System.Windows.Forms.Label]$fordaw_Label1 = $null
 [System.Windows.Forms.TrackBar]$fordaw_crf = $null
@@ -11,6 +14,9 @@ $fordaw_Form = New-Object -TypeName System.Windows.Forms.Form
 function InitializeComponent
 {
 $fordaw_Panel = (New-Object -TypeName System.Windows.Forms.Panel)
+$fordaw_Label4 = (New-Object -TypeName System.Windows.Forms.Label)
+$fordaw_Label3 = (New-Object -TypeName System.Windows.Forms.Label)
+$fordaw_Label2 = (New-Object -TypeName System.Windows.Forms.Label)
 $fordaw_crf_current = (New-Object -TypeName System.Windows.Forms.Label)
 $fordaw_Label1 = (New-Object -TypeName System.Windows.Forms.Label)
 $fordaw_crf = (New-Object -TypeName System.Windows.Forms.TrackBar)
@@ -25,6 +31,9 @@ $fordaw_Form.SuspendLayout()
 #
 #fordaw_Panel
 #
+$fordaw_Panel.Controls.Add($fordaw_Label4)
+$fordaw_Panel.Controls.Add($fordaw_Label3)
+$fordaw_Panel.Controls.Add($fordaw_Label2)
 $fordaw_Panel.Controls.Add($fordaw_crf_current)
 $fordaw_Panel.Controls.Add($fordaw_Label1)
 $fordaw_Panel.Controls.Add($fordaw_crf)
@@ -37,10 +46,34 @@ $fordaw_Panel.Name = [System.String]'fordaw_Panel'
 $fordaw_Panel.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]488,[System.Int32]318))
 $fordaw_Panel.TabIndex = [System.Int32]0
 #
+#fordaw_Label4
+#
+$fordaw_Label4.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]430,[System.Int32]241))
+$fordaw_Label4.Name = [System.String]'fordaw_Label4'
+$fordaw_Label4.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]30,[System.Int32]19))
+$fordaw_Label4.TabIndex = [System.Int32]9
+$fordaw_Label4.Text = [System.String]'Best'
+#
+#fordaw_Label3
+#
+$fordaw_Label3.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]273,[System.Int32]242))
+$fordaw_Label3.Name = [System.String]'fordaw_Label3'
+$fordaw_Label3.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]46,[System.Int32]18))
+$fordaw_Label3.TabIndex = [System.Int32]8
+$fordaw_Label3.Text = [System.String]'Optimal'
+#
+#fordaw_Label2
+#
+$fordaw_Label2.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]103,[System.Int32]241))
+$fordaw_Label2.Name = [System.String]'fordaw_Label2'
+$fordaw_Label2.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]25,[System.Int32]19))
+$fordaw_Label2.TabIndex = [System.Int32]7
+$fordaw_Label2.Text = [System.String]'Ok'
+#
 #fordaw_crf_current
 #
 $fordaw_crf_current.Font = (New-Object -TypeName System.Drawing.Font -ArgumentList @([System.String]'Tahoma',[System.Single]8.25,[System.Drawing.FontStyle]::Bold,[System.Drawing.GraphicsUnit]::Point,([System.Byte][System.Byte]0)))
-$fordaw_crf_current.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]258,[System.Int32]128))
+$fordaw_crf_current.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]74,[System.Int32]207))
 $fordaw_crf_current.Name = [System.String]'fordaw_crf_current'
 $fordaw_crf_current.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]23,[System.Int32]28))
 $fordaw_crf_current.TabIndex = [System.Int32]5
@@ -48,7 +81,7 @@ $fordaw_crf_current.Text = [System.String]'16'
 #
 #fordaw_Label1
 #
-$fordaw_Label1.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]24,[System.Int32]159))
+$fordaw_Label1.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]24,[System.Int32]207))
 $fordaw_Label1.Name = [System.String]'fordaw_Label1'
 $fordaw_Label1.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]63,[System.Int32]28))
 $fordaw_Label1.TabIndex = [System.Int32]4
@@ -57,12 +90,14 @@ $fordaw_Label1.Text = [System.String]'Quality:'
 #fordaw_crf
 #
 $fordaw_crf.LargeChange = [System.Int32]1
-$fordaw_crf.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]93,[System.Int32]159))
+$fordaw_crf.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]103,[System.Int32]194))
 $fordaw_crf.Maximum = [System.Int32]23
 $fordaw_crf.Minimum = [System.Int32]10
 $fordaw_crf.Name = [System.String]'fordaw_crf'
+$fordaw_crf.RightToLeft = [System.Windows.Forms.RightToLeft]::Yes
 $fordaw_crf.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]357,[System.Int32]45))
 $fordaw_crf.TabIndex = [System.Int32]3
+$fordaw_crf.TickStyle = [System.Windows.Forms.TickStyle]::Both
 $fordaw_crf.Value = [System.Int32]16
 #
 #fordaw_preview
@@ -96,7 +131,7 @@ $fordaw_open.UseVisualStyleBackColor = $true
 #
 $fordaw_fileList.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]24,[System.Int32]50))
 $fordaw_fileList.Name = [System.String]'fordaw_fileList'
-$fordaw_fileList.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]436,[System.Int32]72))
+$fordaw_fileList.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]436,[System.Int32]134))
 $fordaw_fileList.TabIndex = [System.Int32]6
 #
 #OpenFileDialog1
@@ -115,6 +150,9 @@ $fordaw_Panel.PerformLayout()
 ([System.ComponentModel.ISupportInitialize]$fordaw_crf).EndInit()
 $fordaw_Form.ResumeLayout($false)
 Add-Member -InputObject $fordaw_Form -Name fordaw_Panel -Value $fordaw_Panel -MemberType NoteProperty
+Add-Member -InputObject $fordaw_Form -Name fordaw_Label4 -Value $fordaw_Label4 -MemberType NoteProperty
+Add-Member -InputObject $fordaw_Form -Name fordaw_Label3 -Value $fordaw_Label3 -MemberType NoteProperty
+Add-Member -InputObject $fordaw_Form -Name fordaw_Label2 -Value $fordaw_Label2 -MemberType NoteProperty
 Add-Member -InputObject $fordaw_Form -Name fordaw_crf_current -Value $fordaw_crf_current -MemberType NoteProperty
 Add-Member -InputObject $fordaw_Form -Name fordaw_Label1 -Value $fordaw_Label1 -MemberType NoteProperty
 Add-Member -InputObject $fordaw_Form -Name fordaw_crf -Value $fordaw_crf -MemberType NoteProperty

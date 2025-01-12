@@ -18,26 +18,26 @@ $filterComplexStart = "-filter_complex `"[0:v]"
 $filterDrawtext = "drawtext=fontfile='$fontPath'"
 
 $filterX = ":x=(w-text_w)/2"
-$filterY = ":y=h-25"
-$filterFontColor = ":fontcolor=0xccccccff"
-$filterFontSize = ":fontsize=22"
+$filterY = ":y=h-(2*text_h)"
+$filterFontColor = ":fontcolor=0xeeeeeeff"
+$filterFontSize = ":fontsize=h/25"
 $filterBox = ":box=1"
-$filterBoxColor = ":boxcolor=0x3333337f,"
+$filterBoxColor = ":boxcolor=0x3333333f,"
 
 $filterComplexTimecodeStart = "drawtext=fontfile='$fontPath'"
 $filterTimecode = ":timecode='00\:00\:00\:00'"
 $filterTimecodeR = ":r=25.0"
 $filterTimecodeX = ":x=(w-text_w)/2"
-$filterTimecodeY = ":y=25"
-$filterTimecodeFontColor = ":fontcolor=0xccccccff"
-$filterTimecodeFontSize = ":fontsize=48"
-$filterTimecodeBox = ":box=1"
-$filterTimecodeBoxColor = ":boxcolor=0x3333337f"
+$filterTimecodeY = ":y=text_h"
+$filterTimecodeFontColor = ":fontcolor=0xeeeeeeff"
+$filterTimecodeFontSize = ":fontsize=h/12"
+$filterTimecodeBox = ":box=1:boxborderw=10"
+$filterTimecodeBoxColor = ":boxcolor=0x3333333f"
 $filterTimecodeOption = ":tc24hmax=1"
-$filterComplexScale = ",scale=1280:720[out]`""
+$filterComplexScale = ",scale=-1:720[out]`""
 
 $mapOption = "-map [out]"
-$audioCodec = "-c:a aac"
+$audioCodec = "-map 0:a? -c:a aac"
 $audioRate = "-ar 48k"
 $audioBitrate = "-b:a 256k"
 $swsFlags = "-sws_flags bicubic"
@@ -56,7 +56,7 @@ function Update-FFmpegCommand {
         if (-not (Test-Path -Path $outputDir)) {
             New-Item -ItemType Directory -Path $outputDir | Out-Null
         }
-        $outputFile = [System.IO.Path]::Combine($outputDir, [System.IO.Path]::GetFileNameWithoutExtension($inputFile) + [System.IO.Path]::GetExtension($inputFile))
+        $outputFile = [System.IO.Path]::Combine($outputDir, [System.IO.Path]::GetFileNameWithoutExtension($inputFile) + ".mp4")
         $filterText = ":text='" + [System.IO.Path]::GetFileNameWithoutExtension($inputFile) + "'"
         $inputOption = "-i `"$inputFile`""
         if ($fordaw_Form.fordaw_preview.Checked) {
@@ -110,7 +110,7 @@ $fordaw_Form.fordaw_start.add_Click({
         if (-not (Test-Path -Path $outputDir)) {
             New-Item -ItemType Directory -Path $outputDir | Out-Null
         }
-        $outputFile = [System.IO.Path]::Combine($outputDir, [System.IO.Path]::GetFileNameWithoutExtension($inputFile) + [System.IO.Path]::GetExtension($inputFile))
+        $outputFile = [System.IO.Path]::Combine($outputDir, [System.IO.Path]::GetFileNameWithoutExtension($inputFile) + ".mp4")
         $videoname = [System.IO.Path]::GetFileNameWithoutExtension($inputFile)
         $inputOption = "-i `"$inputFile`""
         if ($fordaw_Form.fordaw_preview.Checked) {
