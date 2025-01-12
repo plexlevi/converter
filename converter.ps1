@@ -5,9 +5,18 @@ Add-Type -AssemblyName System.Windows.Forms
 . (Join-Path $scriptRoot 'converter.designer.ps1')
 
 # Köszöntő szöveg kiírása a konzolban
-Write-Host "DAW Converter v.0.2"
-Write-Host ([System.Text.Encoding]::UTF8.GetString([System.Text.Encoding]::Default.GetBytes("Created By Levente Géczy")))
-Write-Host "DAW Converter v.0.2'2025"
+Write-Host @"
+ _____     __          __   _____                          _            
+|  __ \   /\ \        / /  / ____|                        | |           
+| |  | | /  \ \  /\  / /  | |     ___  _ ____   _____ _ __| |_ ___ _ __ 
+| |  | |/ /\ \ \/  \/ /   | |    / _ \| '_ \ \ / / _ \ '__| __/ _ \ '__|
+| |__| / ____ \  /\  /    | |___| (_) | | | \ V /  __/ |  | ||  __/ |   
+|_____/_/    \_\/  \/      \_____\___/|_| |_|\_/ \___|_|   \__\___|_|   
+"@
+Write-Host ([System.Text.Encoding]::UTF8.GetString([System.Text.Encoding]::Default.GetBytes("---------------------Created By Levente Géczy (2025)--------------------")))
+Write-Host "Welcome to the Video Converter software!"
+Write-Host ""
+
 
 # Eseménykezelő hozzáadása a Video Convert gombhoz
 $Converter_Form.video_convert.add_Click({

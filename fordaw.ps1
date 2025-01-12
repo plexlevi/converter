@@ -52,9 +52,7 @@ function Get-VideoFramerate {
     )
     $ffprobeOutput = & $ffprobeBinary -v error -select_streams v:0 -show_entries stream=avg_frame_rate -of default=noprint_wrappers=1:nokey=1 $inputFile
     if ($ffprobeOutput) {
-        write-host "FFprobe output: $ffprobeOutput"
         $frameRate = $ffprobeOutput
-        Write-Host "Framerate: $framerate"
         return $frameRate
     } else {
         throw "Could not determine the framerate of the input video."
@@ -99,8 +97,6 @@ function Update-FFmpegCommand {
             $filterTimecode = ":timecode='00\:00\:00\:00' "
         }
     }
-    $global:completeFfmpegCommand = $ffmpegBinary + $hardwareAcceleration + $inputOption + $durationOption + $videoCodec + $crfOption + $pixelFormat + $presetOption + $profileOption + $levelOption + $x264Params + $rescale + $filterComplexStart + $filterDrawtext + $filterText + $filterR + $filterX + $filterY + $filterFontColor + $filterFontSize + $filterBox + $filterBoxColor + $filterComplexTimecodeStart + $filterTimecode + $filterTimecodeR + $filterTimecodeX + $filterTimecodeY + $filterTimecodeFontColor + $filterTimecodeFontSize + $filterTimecodeBox + $filterTimecodeBoxColor + $filterTimecodeOption + $filterComplexScale + $mapOption + $audioCodec + $audioRate + $audioBitrate + $swsFlags + $vsyncOption + $metadataOption + $videoMetadata + $audioMetadata + $movFlags + $outputOverwrite + "`"" + $outputFile + "`""
-    Write-Host "FFmpeg command: $completeFfmpegCommand"
 }
 
 # Add event handlers after initialization
