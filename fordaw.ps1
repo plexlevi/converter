@@ -67,51 +67,9 @@ function DropOrNot {
     return ($framerate -eq "30000/1001" -or $framerate -eq "60000/1001")
 }
 
-# Function to update the complete FFmpeg command
-function Update-FFmpegCommand {
-    if ($fordaw_Form.fordaw_fileList.Items.Count -gt 0) {
-        $inputFile = $fordaw_Form.fordaw_fileList.Items[0]
-        $outputDir = [System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($inputFile), "Video Files")
-        if (-not (Test-Path -Path $outputDir)) {
-            New-Item -ItemType Directory -Path $outputDir | Out-Null
-        }
-        $outputFile = [System.IO.Path]::Combine($outputDir, [System.IO.Path]::GetFileNameWithoutExtension($inputFile) + ".mp4")
-        $filterText = ":text='" + [System.IO.Path]::GetFileNameWithoutExtension($inputFile) + "' "
-        $inputOption = "-i `"$inputFile`" "
-        if ($fordaw_Form.fordaw_preview.Checked) {
-            $durationOption = "-t 30 "
-        } else {
-            $durationOption = ""
-        }
-        $crfOption = "-crf $($fordaw_Form.fordaw_crf.Value) "
-        
-        # Get the framerate of the input video
-        $framerate = Get-VideoFramerate -inputFile $inputFile
-        $filterR = ":r=$framerate "
-        $filterTimecodeR = ":r=$framerate "
-        
-        # Determine the timecode separator based on dropframe
-        if (DropOrNot -framerate $framerate) {
-            $filterTimecode = ":timecode='00\:00\:00\;00' "
-        } else {
-            $filterTimecode = ":timecode='00\:00\:00\:00' "
-        }
-    }
-}
-
 # Add event handlers after initialization
 $fordaw_Form.fordaw_crf.add_Scroll({
-    if ($null -ne $fordaw_Form.fordaw_crf -and $null -ne $fordaw_Form.fordaw_crf_current) {
-        $fordaw_Form.fordaw_crf_current.Text = $fordaw_Form.fordaw_crf.Value.ToString()
-        
-        Update-FFmpegCommand
-    } else {
-        Write-Host "The fordaw_crf or fordaw_crf_current variable does not exist or is null."
-    }
-})
-
-$fordaw_Form.fordaw_preview.add_CheckedChanged({
-    Update-FFmpegCommand
+    $fordaw_Form.fordaw_crf_current.Text = $fordaw_Form.fordaw_crf.Value.ToString()
 })
 
 $fordaw_Form.fordaw_open.add_Click({
@@ -120,12 +78,8 @@ $fordaw_Form.fordaw_open.add_Click({
     if ($OpenFileDialog1.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
         $fordaw_Form.fordaw_fileList.Items.Clear()
         $OpenFileDialog1.FileNames | ForEach-Object { $fordaw_Form.fordaw_fileList.Items.Add($_) }
-        Update-FFmpegCommand
     }
 })
-
-# Initial update of the FFmpeg command
-Update-FFmpegCommand
 
 $fordaw_Form.fordaw_start.add_Click({
     if ($fordaw_Form.fordaw_fileList.Items.Count -eq 0) {

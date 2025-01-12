@@ -14,7 +14,6 @@ Write-Host @"
 |_____/_/    \_\/  \/      \_____\___/|_| |_|\_/ \___|_|   \__\___|_|   
 "@
 Write-Host ([System.Text.Encoding]::UTF8.GetString([System.Text.Encoding]::Default.GetBytes("---------------------Created By Levente Géczy (2025)--------------------")))
-Write-Host "Welcome to the Video Converter software!"
 Write-Host ""
 
 
