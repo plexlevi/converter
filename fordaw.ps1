@@ -99,21 +99,19 @@ function Start-Conversion {
     $process.Start() | Out-Null
 
     $totalProcessedTime = 0
+    $startTime = Get-Date
 
     while (-not $process.HasExited) {
         $output = $process.StandardError.ReadLine()
         if ($output -match "time=(\d+:\d+:\d+.\d+)") {
             $currentTime = $matches[1]
             $currentSeconds = [TimeSpan]::Parse($currentTime).TotalSeconds
-            $percentComplete = [math]::Round(($currentSeconds / $totalDuration) * 100)
-            $remainingTime = [TimeSpan]::FromSeconds($totalDuration - $currentSeconds)
-            $statusText = "{0}% - {1}" -f $percentComplete, $remainingTime.ToString("hh\:mm\:ss")
-            Write-Progress -Activity "Converting videos" -Status $statusText -PercentComplete $percentComplete
-
             $totalProcessedTime = ($currentFileIndex - 1) * $totalDuration + $currentSeconds
             $totalPercentComplete = [math]::Round(($totalProcessedTime / ($totalFiles * $totalDuration)) * 100)
-            $totalRemainingTime = [TimeSpan]::FromSeconds(($totalFiles * $totalDuration) - $totalProcessedTime)
-            $totalStatusText = "{0}% - {1}" -f $totalPercentComplete, $totalRemainingTime.ToString("hh\:mm\:ss")
+            $elapsedTime = (Get-Date) - $startTime
+            $estimatedTotalTime = [TimeSpan]::FromSeconds(($elapsedTime.TotalSeconds / $totalProcessedTime) * ($totalFiles * $totalDuration))
+            $eta = $startTime.Add($estimatedTotalTime) - (Get-Date)
+            $totalStatusText = "{1}/{2}     {0}     {3}%     ETA: {4}" -f [System.IO.Path]::GetFileName($inputFile), $currentFileIndex, $totalFiles, $totalPercentComplete, $eta.ToString("hh\:mm\:ss")
             Write-Progress -Activity "Overall progress" -Status $totalStatusText -PercentComplete $totalPercentComplete -Id 1
         }
     }
@@ -182,6 +180,8 @@ $fordaw_Form.fordaw_start.add_Click({
     
     Write-Host "All conversions completed."
     [System.Windows.Forms.MessageBox]::Show("All conversions completed.", "Conversion Finished", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    # Remove the progress bar after all conversions are completed
+    Write-Progress -Activity "Overall progress" -Status "Completed" -Completed -Id 1
 })
 
 # Remove the form closing event handler to prevent the form from closing
