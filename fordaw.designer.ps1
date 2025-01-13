@@ -160,7 +160,7 @@ $fordaw_fileList.DrawMode = [System.Windows.Forms.DrawMode]::Normal
 #
 #OpenFileDialog1
 #
-$OpenFileDialog1.FileName = [System.String]'OpenFileDialog1'
+$OpenFileDialog1.FileName = [System.String]''
 #
 #fordaw_Form
 #

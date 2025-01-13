@@ -82,9 +82,10 @@ function Start-Conversion {
         [string]$outputFile,
         [string]$ffmpegCommand,
         [int]$currentFileIndex,
-        [int]$totalFiles
+        [int]$totalFiles,
+        [int]$previewDuration
     )
-    $totalDuration = Get-VideoDuration -inputFile $inputFile
+    $totalDuration = if ($previewDuration -gt 0) { $previewDuration } else { Get-VideoDuration -inputFile $inputFile }
 
     $processInfo = New-Object System.Diagnostics.ProcessStartInfo
     $processInfo.FileName = "cmd.exe"
@@ -125,7 +126,7 @@ $fordaw_Form.fordaw_crf.add_Scroll({
 })
 
 $fordaw_Form.fordaw_open.add_Click({
-    $OpenFileDialog1.Filter = "Video Files|*.mp4;*.avi;*.mov;*.mkv"
+    $OpenFileDialog1.Filter = "Video Files|*.mp4;*.avi;*.mov;*.mkv;*.flv;*.wmv;*.webm;*.m4v;*.3gp;*.3g2;*.mts;*.m2ts;*.ts;*.mxf;*.vob;*.ogv;*.divx;*.xvid;*.rm;*.rmvb;*.asf;*.amv;*.mpg;*.mpeg;*.mpe;*.mpv;*.m2v;*.svi;*.mkv;*.f4v;*.f4p;*.f4a;*.f4b"
     $OpenFileDialog1.Multiselect = $true
     if ($OpenFileDialog1.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
         $fordaw_Form.fordaw_fileList.Items.Clear()
@@ -153,8 +154,10 @@ $fordaw_Form.fordaw_start.add_Click({
         $inputOption = "-i `"$inputFile`" "
         if ($fordaw_Form.fordaw_preview.Checked) {
             $durationOption = "-t 30 "
+            $previewDuration = 30
         } else {
             $durationOption = ""
+            $previewDuration = 0
         }
         $crfOption = "-crf $($fordaw_Form.fordaw_crf.Value) "
         $filterText = ":text='" + $videoname + "' "
@@ -173,7 +176,7 @@ $fordaw_Form.fordaw_start.add_Click({
         
         $global:completeFfmpegCommand = $ffmpegBinary + $hardwareAcceleration + $inputOption + $durationOption + $videoCodec + $crfOption + $pixelFormat + $presetOption + $profileOption + $levelOption + $x264Params + $rescale + $filterComplexStart + $filterDrawtext + $filterText + $filterR + $filterX + $filterY + $filterFontColor + $filterFontSize + $filterBox + $filterBoxColor + $filterComplexTimecodeStart + $filterTimecode + $filterTimecodeR + $filterTimecodeX + $filterTimecodeY + $filterTimecodeFontColor + $filterTimecodeFontSize + $filterTimecodeBox + $filterTimecodeBoxColor + $filterTimecodeOption + $filterComplexScale + $mapOption + $audioCodec + $audioRate + $audioBitrate + $swsFlags + $vsyncOption + $metadataOption + $videoMetadata + $audioMetadata + $movFlags + $outputOverwrite + "`"" + $outputFile + "`""
         
-        Start-Conversion -inputFile $inputFile -outputFile $outputFile -ffmpegCommand $global:completeFfmpegCommand -currentFileIndex $currentFileIndex -totalFiles $totalFiles
+        Start-Conversion -inputFile $inputFile -outputFile $outputFile -ffmpegCommand $global:completeFfmpegCommand -currentFileIndex $currentFileIndex -totalFiles $totalFiles -previewDuration $previewDuration
         
         Write-Host "Started conversion for: $outputFile"
     }

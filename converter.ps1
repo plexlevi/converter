@@ -1,8 +1,3 @@
-if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    # Ha nem rendszergazdai jogosultságokkal fut, újraindítjuk rendszergazdai jogosultságokkal
-    Start-Process powershell.exe -Verb runas -ArgumentList '-ExecutionPolicy Bypass -File "', $MyInvocation.MyCommand.Definition, '"'
-    exit
-}
 # Beállítjuk a szkript útvonalát
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Definition
 Add-Type -AssemblyName System.Windows.Forms
