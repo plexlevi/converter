@@ -76,6 +76,26 @@ function Get-VideoDuration {
     }
 }
 
+# Function to get video information using ffprobe
+function Get-VideoInfo {
+    param (
+        [string]$inputFile
+    )
+    $ffprobeOutput = & $ffprobeBinary -v quiet -print_format json -show_format -show_streams $inputFile
+    if ($ffprobeOutput) {
+        $videoInfo = $ffprobeOutput | ConvertFrom-Json
+        $videoInfo.format.duration = [TimeSpan]::FromSeconds([double]$videoInfo.format.duration).ToString("hh\:mm\:ss")
+        if ($videoInfo.streams[1].bit_rate) {
+            $videoInfo.streams[1].bit_rate = [math]::Round([double]$videoInfo.streams[1].bit_rate / 1000, 2)
+        }
+        $videoInfo.format.bit_rate = [math]::Round([double]$videoInfo.format.bit_rate / 1000, 2)
+        $videoInfo.format.size = [math]::Round([double]$videoInfo.format.size / (1024 * 1024), 2)
+        return $videoInfo
+    } else {
+        throw "Could not retrieve video information."
+    }
+}
+
 function Start-Conversion {
     param (
         [string]$inputFile,
@@ -130,7 +150,37 @@ $fordaw_Form.fordaw_open.add_Click({
     $OpenFileDialog1.Multiselect = $true
     if ($OpenFileDialog1.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
         $fordaw_Form.fordaw_fileList.Items.Clear()
-        $OpenFileDialog1.FileNames | ForEach-Object { $fordaw_Form.fordaw_fileList.Items.Add($_) }
+        $OpenFileDialog1.FileNames | ForEach-Object { 
+            $fordaw_Form.fordaw_fileList.Items.Add($_)
+            $videoInfo = Get-VideoInfo -inputFile $_
+            Write-Host "$_"
+            Write-Host "Codec:          $($videoInfo.streams[0].codec_long_name)"
+            Write-Host "Profile:        $($videoInfo.streams[0].profile)"
+            Write-Host "Level:          $($videoInfo.streams[0].level)"
+            Write-Host "Resolution:     $($videoInfo.streams[0].width) x $($videoInfo.streams[0].height)"
+            Write-Host "Aspect Ratio:   $($videoInfo.streams[0].display_aspect_ratio)"
+            Write-Host "Pixel Format:   $($videoInfo.streams[0].pix_fmt)"
+            Write-Host "Color Space:    $($videoInfo.streams[0].color_space)"
+            Write-Host "Field Order:    $($videoInfo.streams[0].field_order)"
+            Write-Host "Keyframes:      $($videoInfo.streams[0].refs)"
+            Write-Host "B-frames:       $($videoInfo.streams[0].has_b_frames)"
+            Write-Host "Frame Rate:     $($videoInfo.streams[0].avg_frame_rate)"
+            if ($videoInfo.streams[1]) {
+                Write-Host "Audio Codec:    $($videoInfo.streams[1].codec_long_name)"
+                Write-Host "Sample Rate:    $($videoInfo.streams[1].sample_rate) KHz"
+                Write-Host "Channels:       $($videoInfo.streams[1].channels)"
+                Write-Host "Channel Layout: $($videoInfo.streams[1].channel_layout)"
+                if ($videoInfo.streams[1].bit_rate) {
+                    Write-Host "Audio Bit Rate: $($videoInfo.streams[1].bit_rate) kb/s"
+                }
+            }
+            Write-Host "Format:         $($videoInfo.format.format_long_name)"
+            Write-Host "Duration:       $($videoInfo.format.duration)"
+            Write-Host "File Size:      $($videoInfo.format.size) MB"
+            Write-Host "Bit Rate:       $($videoInfo.format.bit_rate) kb/s"
+            Write-Host ""
+            Write-Host ""
+        }
     }
 })
 
