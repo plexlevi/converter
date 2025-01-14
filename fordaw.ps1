@@ -96,50 +96,6 @@ function Get-VideoInfo {
     }
 }
 
-function Start-Conversion {
-    param (
-        [string]$inputFile,
-        [string]$outputFile,
-        [string]$ffmpegCommand,
-        [int]$currentFileIndex,
-        [int]$totalFiles,
-        [int]$previewDuration
-    )
-    $totalDuration = if ($previewDuration -gt 0) { $previewDuration } else { Get-VideoDuration -inputFile $inputFile }
-
-    $processInfo = New-Object System.Diagnostics.ProcessStartInfo
-    $processInfo.FileName = "cmd.exe"
-    $processInfo.Arguments = "/c $ffmpegCommand"
-    $processInfo.RedirectStandardOutput = $true
-    $processInfo.RedirectStandardError = $true
-    $processInfo.UseShellExecute = $false
-    $processInfo.CreateNoWindow = $true
-
-    $process = New-Object System.Diagnostics.Process
-    $process.StartInfo = $processInfo
-    $process.Start() | Out-Null
-
-    $totalProcessedTime = 0
-    $startTime = Get-Date
-
-    while (-not $process.HasExited) {
-        $output = $process.StandardError.ReadLine()
-        if ($output -match "time=(\d+:\d+:\d+.\d+)") {
-            $currentTime = $matches[1]
-            $currentSeconds = [TimeSpan]::Parse($currentTime).TotalSeconds
-            $totalProcessedTime = ($currentFileIndex - 1) * $totalDuration + $currentSeconds
-            $totalPercentComplete = [math]::Round(($totalProcessedTime / ($totalFiles * $totalDuration)) * 100)
-            $elapsedTime = (Get-Date) - $startTime
-            $estimatedTotalTime = [TimeSpan]::FromSeconds(($elapsedTime.TotalSeconds / $totalProcessedTime) * ($totalFiles * $totalDuration))
-            $eta = $startTime.Add($estimatedTotalTime) - (Get-Date)
-            $totalStatusText = "{1}/{2}     {0}     {3}%     ETA: {4}" -f [System.IO.Path]::GetFileName($inputFile), $currentFileIndex, $totalFiles, $totalPercentComplete, $eta.ToString("hh\:mm\:ss")
-            Write-Progress -Activity "Overall progress" -Status $totalStatusText -PercentComplete $totalPercentComplete -Id 1
-        }
-    }
-
-    $process.WaitForExit()
-}
-
 # Add event handlers after initialization
 $fordaw_Form.fordaw_crf.add_Scroll({
     $fordaw_Form.fordaw_crf_current.Text = $fordaw_Form.fordaw_crf.Value.ToString()
@@ -153,6 +109,9 @@ $fordaw_Form.fordaw_open.add_Click({
         $OpenFileDialog1.FileNames | ForEach-Object { 
             $fordaw_Form.fordaw_fileList.Items.Add($_)
             $videoInfo = Get-VideoInfo -inputFile $_
+
+            Set-ConsoleColor -r 63 -g 181 -b 224 -type "Foreground"
+
             Write-Host "$_"
             Write-Host "Codec:          $($videoInfo.streams[0].codec_long_name)"
             Write-Host "Profile:        $($videoInfo.streams[0].profile)"
@@ -180,17 +139,18 @@ $fordaw_Form.fordaw_open.add_Click({
             Write-Host "Bit Rate:       $($videoInfo.format.bit_rate) kb/s"
             Write-Host ""
             Write-Host ""
+
+            [System.Console]::ResetColor()
         }
     }
 })
 
-$fordaw_Form.fordaw_start.add_Click({
+$fordaw_Form.fordaw_addToCue.add_Click({
     if ($fordaw_Form.fordaw_fileList.Items.Count -eq 0) {
         Write-Host "No files selected for conversion."
         return
     }
     
-    $totalFiles = $fordaw_Form.fordaw_fileList.Items.Count
     $currentFileIndex = 0
     foreach ($file in $fordaw_Form.fordaw_fileList.Items) {
         $currentFileIndex++
@@ -204,10 +164,8 @@ $fordaw_Form.fordaw_start.add_Click({
         $inputOption = "-i `"$inputFile`" "
         if ($fordaw_Form.fordaw_preview.Checked) {
             $durationOption = "-t 30 "
-            $previewDuration = 30
         } else {
             $durationOption = ""
-            $previewDuration = 0
         }
         $crfOption = "-crf $($fordaw_Form.fordaw_crf.Value) "
         $filterText = ":text='" + $videoname + "' "
@@ -226,15 +184,11 @@ $fordaw_Form.fordaw_start.add_Click({
         
         $global:completeFfmpegCommand = $ffmpegBinary + $hardwareAcceleration + $inputOption + $durationOption + $videoCodec + $crfOption + $pixelFormat + $presetOption + $profileOption + $levelOption + $x264Params + $rescale + $filterComplexStart + $filterDrawtext + $filterText + $filterR + $filterX + $filterY + $filterFontColor + $filterFontSize + $filterBox + $filterBoxColor + $filterComplexTimecodeStart + $filterTimecode + $filterTimecodeR + $filterTimecodeX + $filterTimecodeY + $filterTimecodeFontColor + $filterTimecodeFontSize + $filterTimecodeBox + $filterTimecodeBoxColor + $filterTimecodeOption + $filterComplexScale + $mapOption + $audioCodec + $audioRate + $audioBitrate + $swsFlags + $vsyncOption + $metadataOption + $videoMetadata + $audioMetadata + $movFlags + $outputOverwrite + "`"" + $outputFile + "`""
         
-        Start-Conversion -inputFile $inputFile -outputFile $outputFile -ffmpegCommand $global:completeFfmpegCommand -currentFileIndex $currentFileIndex -totalFiles $totalFiles -previewDuration $previewDuration
-        
-        Write-Host "Started conversion for: $outputFile"
+        # Pass the command back to converter.ps1 using a global variable
+        $global:ffmpegCommands += $global:completeFfmpegCommand + "`n"
     }
     
-    Write-Host "All conversions completed."
-    [System.Windows.Forms.MessageBox]::Show("All conversions completed.", "Conversion Finished", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-    # Remove the progress bar after all conversions are completed
-    Write-Progress -Activity "Overall progress" -Status "Completed" -Completed -Id 1
+    $fordaw_Form.Close()
 })
 
 # Remove the form closing event handler to prevent the form from closing

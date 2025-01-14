@@ -7,7 +7,7 @@ $fordaw_Form = New-Object -TypeName System.Windows.Forms.Form
 [System.Windows.Forms.Label]$fordaw_Label1 = $null
 [System.Windows.Forms.TrackBar]$fordaw_crf = $null
 [System.Windows.Forms.CheckBox]$fordaw_preview = $null
-[System.Windows.Forms.Button]$fordaw_start = $null
+[System.Windows.Forms.Button]$fordaw_addToCue = $null
 [System.Windows.Forms.Button]$fordaw_open = $null
 [System.Windows.Forms.ListBox]$fordaw_fileList = $null
 [System.Windows.Forms.OpenFileDialog]$OpenFileDialog1 = $null
@@ -23,7 +23,7 @@ $fordaw_crf_current = (New-Object -TypeName System.Windows.Forms.Label)
 $fordaw_Label1 = (New-Object -TypeName System.Windows.Forms.Label)
 $fordaw_crf = (New-Object -TypeName System.Windows.Forms.TrackBar)
 $fordaw_preview = (New-Object -TypeName System.Windows.Forms.CheckBox)
-$fordaw_start = (New-Object -TypeName System.Windows.Forms.Button)
+$fordaw_addToCue = (New-Object -TypeName System.Windows.Forms.Button)
 $fordaw_open = (New-Object -TypeName System.Windows.Forms.Button)
 $fordaw_fileList = (New-Object -TypeName System.Windows.Forms.ListBox)
 $fordaw_fileList.Add_KeyDown({
@@ -51,7 +51,7 @@ $fordaw_Panel.Controls.Add($fordaw_crf_current)
 $fordaw_Panel.Controls.Add($fordaw_Label1)
 $fordaw_Panel.Controls.Add($fordaw_crf)
 $fordaw_Panel.Controls.Add($fordaw_preview)
-$fordaw_Panel.Controls.Add($fordaw_start)
+$fordaw_Panel.Controls.Add($fordaw_addToCue)
 $fordaw_Panel.Controls.Add($fordaw_open)
 $fordaw_Panel.Controls.Add($fordaw_fileList)
 $fordaw_Panel.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]0,[System.Int32]0))
@@ -122,14 +122,14 @@ $fordaw_preview.TabIndex = [System.Int32]2
 $fordaw_preview.Text = [System.String]'30s preview'
 $fordaw_preview.UseVisualStyleBackColor = $true
 #
-#fordaw_start
+#fordaw_addToCue
 #
-$fordaw_start.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]385,[System.Int32]263))
-$fordaw_start.Name = [System.String]'fordaw_start'
-$fordaw_start.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]75,[System.Int32]23))
-$fordaw_start.TabIndex = [System.Int32]1
-$fordaw_start.Text = [System.String]'Start'
-$fordaw_start.UseVisualStyleBackColor = $true
+$fordaw_addToCue.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]385,[System.Int32]263))
+$fordaw_addToCue.Name = [System.String]'fordaw_addToCue'
+$fordaw_addToCue.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]75,[System.Int32]23))
+$fordaw_addToCue.TabIndex = [System.Int32]1
+$fordaw_addToCue.Text = [System.String]'Add to Cue'
+$fordaw_addToCue.UseVisualStyleBackColor = $true
 #
 #fordaw_open
 #
@@ -181,7 +181,7 @@ Add-Member -InputObject $fordaw_Form -Name fordaw_crf_current -Value $fordaw_crf
 Add-Member -InputObject $fordaw_Form -Name fordaw_Label1 -Value $fordaw_Label1 -MemberType NoteProperty
 Add-Member -InputObject $fordaw_Form -Name fordaw_crf -Value $fordaw_crf -MemberType NoteProperty
 Add-Member -InputObject $fordaw_Form -Name fordaw_preview -Value $fordaw_preview -MemberType NoteProperty
-Add-Member -InputObject $fordaw_Form -Name fordaw_start -Value $fordaw_start -MemberType NoteProperty
+Add-Member -InputObject $fordaw_Form -Name fordaw_addToCue -Value $fordaw_addToCue -MemberType NoteProperty
 Add-Member -InputObject $fordaw_Form -Name fordaw_open -Value $fordaw_open -MemberType NoteProperty
 Add-Member -InputObject $fordaw_Form -Name fordaw_fileList -Value $fordaw_fileList -MemberType NoteProperty
 Add-Member -InputObject $fordaw_Form -Name OpenFileDialog1 -Value $OpenFileDialog1 -MemberType NoteProperty
