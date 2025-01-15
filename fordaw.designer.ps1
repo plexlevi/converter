@@ -11,8 +11,6 @@ $fordaw_Form = New-Object -TypeName System.Windows.Forms.Form
 [System.Windows.Forms.Button]$fordaw_open = $null
 [System.Windows.Forms.ListBox]$fordaw_fileList = $null
 [System.Windows.Forms.OpenFileDialog]$OpenFileDialog1 = $null
-
-
 function InitializeComponent
 {
 $fordaw_Panel = (New-Object -TypeName System.Windows.Forms.Panel)
@@ -26,17 +24,6 @@ $fordaw_preview = (New-Object -TypeName System.Windows.Forms.CheckBox)
 $fordaw_addToCue = (New-Object -TypeName System.Windows.Forms.Button)
 $fordaw_open = (New-Object -TypeName System.Windows.Forms.Button)
 $fordaw_fileList = (New-Object -TypeName System.Windows.Forms.ListBox)
-$fordaw_fileList.Add_KeyDown({
-    param ($s, $e)
-    if ($e.KeyCode -eq [System.Windows.Forms.Keys]::Delete -or $e.KeyCode -eq [System.Windows.Forms.Keys]::Back) {
-        $selectedIndex = $fordaw_fileList.SelectedIndex
-        if ($selectedIndex -ge 0) {
-            $fordaw_fileList.Items.RemoveAt($selectedIndex)
-        }
-    }
-})
-$fordaw_fileList.DrawMode = [System.Windows.Forms.DrawMode]::Normal
-$fordaw_fileList.ItemHeight = 25
 $OpenFileDialog1 = (New-Object -TypeName System.Windows.Forms.OpenFileDialog)
 $fordaw_Panel.SuspendLayout()
 ([System.ComponentModel.ISupportInitialize]$fordaw_crf).BeginInit()
@@ -135,9 +122,9 @@ $fordaw_addToCue.UseVisualStyleBackColor = $true
 #
 $fordaw_open.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]24,[System.Int32]12))
 $fordaw_open.Name = [System.String]'fordaw_open'
-$fordaw_open.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]75,[System.Int32]23))
+$fordaw_open.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]86,[System.Int32]23))
 $fordaw_open.TabIndex = [System.Int32]0
-$fordaw_open.Text = [System.String]'Open Files'
+$fordaw_open.Text = [System.String]'Open Files...'
 $fordaw_open.UseVisualStyleBackColor = $true
 #
 #fordaw_fileList
@@ -146,21 +133,6 @@ $fordaw_fileList.Location = (New-Object -TypeName System.Drawing.Point -Argument
 $fordaw_fileList.Name = [System.String]'fordaw_fileList'
 $fordaw_fileList.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]436,[System.Int32]134))
 $fordaw_fileList.TabIndex = [System.Int32]6
-$fordaw_fileList.ItemHeight = 25
-$fordaw_fileList.Add_KeyDown({
-    param ($s, $e)
-    if ($e.KeyCode -eq [System.Windows.Forms.Keys]::Delete -or $e.KeyCode -eq [System.Windows.Forms.Keys]::Back) {
-        $selectedIndex = $fordaw_fileList.SelectedIndex
-        if ($selectedIndex -ge 0) {
-            $fordaw_fileList.Items.RemoveAt($selectedIndex)
-        }
-    }
-})
-$fordaw_fileList.DrawMode = [System.Windows.Forms.DrawMode]::Normal
-#
-#OpenFileDialog1
-#
-$OpenFileDialog1.FileName = [System.String]''
 #
 #fordaw_Form
 #

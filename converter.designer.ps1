@@ -14,9 +14,9 @@ $Converter_Form.SuspendLayout()
 #
 $video_convert.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]12,[System.Int32]12))
 $video_convert.Name = [System.String]'video_convert'
-$video_convert.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]75,[System.Int32]41))
+$video_convert.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]81,[System.Int32]41))
 $video_convert.TabIndex = [System.Int32]0
-$video_convert.Text = [System.String]'Video Convert'
+$video_convert.Text = [System.String]'Video Convert...'
 $video_convert.UseVisualStyleBackColor = $true
 #
 #start_conversion
@@ -25,7 +25,7 @@ $start_conversion.Location = (New-Object -TypeName System.Drawing.Point -Argumen
 $start_conversion.Name = [System.String]'start_conversion'
 $start_conversion.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]75,[System.Int32]41))
 $start_conversion.TabIndex = [System.Int32]1
-$start_conversion.Text = [System.String]'Start Conversion'
+$start_conversion.Text = [System.String]'START CONVERSION'
 $start_conversion.UseVisualStyleBackColor = $true
 #
 #ffmpegCommandList

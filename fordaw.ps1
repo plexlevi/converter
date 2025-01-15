@@ -97,6 +97,10 @@ function Get-VideoInfo {
 }
 
 # Add event handlers after initialization
+$fordaw_Form.add_Load({
+    $fordaw_Form.fordaw_open.PerformClick()
+})
+
 $fordaw_Form.fordaw_crf.add_Scroll({
     $fordaw_Form.fordaw_crf_current.Text = $fordaw_Form.fordaw_crf.Value.ToString()
 })
