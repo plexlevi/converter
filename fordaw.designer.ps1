@@ -1,5 +1,10 @@
 $fordaw_Form = New-Object -TypeName System.Windows.Forms.Form
 [System.Windows.Forms.Panel]$fordaw_Panel = $null
+[System.Windows.Forms.RadioButton]$fordaw_dnxhd = $null
+[System.Windows.Forms.RadioButton]$fordaw_h264 = $null
+[System.Windows.Forms.CheckBox]$fordaw_webquality = $null
+[System.Windows.Forms.CheckBox]$fordaw_blackbg = $null
+[System.Windows.Forms.CheckBox]$timecodeburnin = $null
 [System.Windows.Forms.Label]$fordaw_Label4 = $null
 [System.Windows.Forms.Label]$fordaw_Label3 = $null
 [System.Windows.Forms.Label]$fordaw_Label2 = $null
@@ -14,6 +19,11 @@ $fordaw_Form = New-Object -TypeName System.Windows.Forms.Form
 function InitializeComponent
 {
 $fordaw_Panel = (New-Object -TypeName System.Windows.Forms.Panel)
+$fordaw_dnxhd = (New-Object -TypeName System.Windows.Forms.RadioButton)
+$fordaw_h264 = (New-Object -TypeName System.Windows.Forms.RadioButton)
+$fordaw_webquality = (New-Object -TypeName System.Windows.Forms.CheckBox)
+$fordaw_blackbg = (New-Object -TypeName System.Windows.Forms.CheckBox)
+$timecodeburnin = (New-Object -TypeName System.Windows.Forms.CheckBox)
 $fordaw_Label4 = (New-Object -TypeName System.Windows.Forms.Label)
 $fordaw_Label3 = (New-Object -TypeName System.Windows.Forms.Label)
 $fordaw_Label2 = (New-Object -TypeName System.Windows.Forms.Label)
@@ -31,6 +41,11 @@ $fordaw_Form.SuspendLayout()
 #
 #fordaw_Panel
 #
+$fordaw_Panel.Controls.Add($fordaw_dnxhd)
+$fordaw_Panel.Controls.Add($fordaw_h264)
+$fordaw_Panel.Controls.Add($fordaw_webquality)
+$fordaw_Panel.Controls.Add($fordaw_blackbg)
+$fordaw_Panel.Controls.Add($timecodeburnin)
 $fordaw_Panel.Controls.Add($fordaw_Label4)
 $fordaw_Panel.Controls.Add($fordaw_Label3)
 $fordaw_Panel.Controls.Add($fordaw_Label2)
@@ -43,8 +58,57 @@ $fordaw_Panel.Controls.Add($fordaw_open)
 $fordaw_Panel.Controls.Add($fordaw_fileList)
 $fordaw_Panel.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]0,[System.Int32]0))
 $fordaw_Panel.Name = [System.String]'fordaw_Panel'
-$fordaw_Panel.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]488,[System.Int32]318))
+$fordaw_Panel.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]488,[System.Int32]397))
 $fordaw_Panel.TabIndex = [System.Int32]0
+#
+#fordaw_dnxhd
+#
+$fordaw_dnxhd.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]356,[System.Int32]293))
+$fordaw_dnxhd.Name = [System.String]'fordaw_dnxhd'
+$fordaw_dnxhd.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]104,[System.Int32]24))
+$fordaw_dnxhd.TabIndex = [System.Int32]15
+$fordaw_dnxhd.Text = [System.String]'DNxHD'
+$fordaw_dnxhd.UseVisualStyleBackColor = $true
+#
+#fordaw_h264
+#
+$fordaw_h264.Checked = $true
+$fordaw_h264.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]356,[System.Int32]263))
+$fordaw_h264.Name = [System.String]'fordaw_h264'
+$fordaw_h264.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]104,[System.Int32]24))
+$fordaw_h264.TabIndex = [System.Int32]14
+$fordaw_h264.TabStop = $true
+$fordaw_h264.Text = [System.String]'H.264'
+$fordaw_h264.UseVisualStyleBackColor = $true
+#
+#fordaw_webquality
+#
+$fordaw_webquality.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]24,[System.Int32]264))
+$fordaw_webquality.Name = [System.String]'fordaw_webquality'
+$fordaw_webquality.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]104,[System.Int32]24))
+$fordaw_webquality.TabIndex = [System.Int32]12
+$fordaw_webquality.Text = [System.String]'Web quality'
+$fordaw_webquality.UseVisualStyleBackColor = $true
+#
+#fordaw_blackbg
+#
+$fordaw_blackbg.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]134,[System.Int32]293))
+$fordaw_blackbg.Name = [System.String]'fordaw_blackbg'
+$fordaw_blackbg.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]120,[System.Int32]24))
+$fordaw_blackbg.TabIndex = [System.Int32]11
+$fordaw_blackbg.Text = [System.String]'Black background'
+$fordaw_blackbg.UseVisualStyleBackColor = $true
+#
+#timecodeburnin
+#
+$timecodeburnin.Checked = $true
+$timecodeburnin.CheckState = [System.Windows.Forms.CheckState]::Checked
+$timecodeburnin.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]134,[System.Int32]263))
+$timecodeburnin.Name = [System.String]'timecodeburnin'
+$timecodeburnin.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]120,[System.Int32]24))
+$timecodeburnin.TabIndex = [System.Int32]10
+$timecodeburnin.Text = [System.String]'Timecode Burnin'
+$timecodeburnin.UseVisualStyleBackColor = $true
 #
 #fordaw_Label4
 #
@@ -102,7 +166,7 @@ $fordaw_crf.Value = [System.Int32]16
 #
 #fordaw_preview
 #
-$fordaw_preview.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]24,[System.Int32]263))
+$fordaw_preview.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]24,[System.Int32]294))
 $fordaw_preview.Name = [System.String]'fordaw_preview'
 $fordaw_preview.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]104,[System.Int32]24))
 $fordaw_preview.TabIndex = [System.Int32]2
@@ -111,11 +175,11 @@ $fordaw_preview.UseVisualStyleBackColor = $true
 #
 #fordaw_addToCue
 #
-$fordaw_addToCue.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]385,[System.Int32]263))
+$fordaw_addToCue.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]207,[System.Int32]338))
 $fordaw_addToCue.Name = [System.String]'fordaw_addToCue'
-$fordaw_addToCue.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]75,[System.Int32]23))
+$fordaw_addToCue.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]75,[System.Int32]39))
 $fordaw_addToCue.TabIndex = [System.Int32]1
-$fordaw_addToCue.Text = [System.String]'Add to Cue'
+$fordaw_addToCue.Text = [System.String]'ADD TO CUE'
 $fordaw_addToCue.UseVisualStyleBackColor = $true
 #
 #fordaw_open
@@ -136,7 +200,7 @@ $fordaw_fileList.TabIndex = [System.Int32]6
 #
 #fordaw_Form
 #
-$fordaw_Form.ClientSize = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]484,[System.Int32]311))
+$fordaw_Form.ClientSize = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]484,[System.Int32]389))
 $fordaw_Form.Controls.Add($fordaw_Panel)
 $fordaw_Form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedToolWindow
 $fordaw_Form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
@@ -146,6 +210,11 @@ $fordaw_Panel.PerformLayout()
 ([System.ComponentModel.ISupportInitialize]$fordaw_crf).EndInit()
 $fordaw_Form.ResumeLayout($false)
 Add-Member -InputObject $fordaw_Form -Name fordaw_Panel -Value $fordaw_Panel -MemberType NoteProperty
+Add-Member -InputObject $fordaw_Form -Name fordaw_dnxhd -Value $fordaw_dnxhd -MemberType NoteProperty
+Add-Member -InputObject $fordaw_Form -Name fordaw_h264 -Value $fordaw_h264 -MemberType NoteProperty
+Add-Member -InputObject $fordaw_Form -Name fordaw_webquality -Value $fordaw_webquality -MemberType NoteProperty
+Add-Member -InputObject $fordaw_Form -Name fordaw_blackbg -Value $fordaw_blackbg -MemberType NoteProperty
+Add-Member -InputObject $fordaw_Form -Name timecodeburnin -Value $timecodeburnin -MemberType NoteProperty
 Add-Member -InputObject $fordaw_Form -Name fordaw_Label4 -Value $fordaw_Label4 -MemberType NoteProperty
 Add-Member -InputObject $fordaw_Form -Name fordaw_Label3 -Value $fordaw_Label3 -MemberType NoteProperty
 Add-Member -InputObject $fordaw_Form -Name fordaw_Label2 -Value $fordaw_Label2 -MemberType NoteProperty

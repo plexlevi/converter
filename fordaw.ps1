@@ -99,11 +99,57 @@ function Get-VideoInfo {
 # Add event handlers after initialization
 $fordaw_Form.add_Load({
     $fordaw_Form.fordaw_open.PerformClick()
+    UpdateControlsState
 })
 
 $fordaw_Form.fordaw_crf.add_Scroll({
     $fordaw_Form.fordaw_crf_current.Text = $fordaw_Form.fordaw_crf.Value.ToString()
 })
+
+$fordaw_Form.fordaw_webquality.add_CheckedChanged({
+    if ($fordaw_Form.fordaw_webquality.Checked) {
+        $fordaw_Form.fordaw_h264.Checked = $true
+    }
+    UpdateControlsState
+})
+
+$fordaw_Form.timecodeburnin.add_CheckedChanged({
+    UpdateControlsState
+})
+
+$fordaw_Form.fordaw_dnxhd.add_CheckedChanged({
+    UpdateControlsState
+})
+
+function UpdateControlsState {
+    if ($fordaw_Form.fordaw_webquality.Checked) {
+        $fordaw_Form.fordaw_dnxhd.Enabled = $false
+    } else {
+        $fordaw_Form.fordaw_dnxhd.Enabled = $true
+    }
+
+    if (-not $fordaw_Form.timecodeburnin.Checked) {
+        $fordaw_Form.fordaw_blackbg.Enabled = $false
+    } else {
+        $fordaw_Form.fordaw_blackbg.Enabled = $true
+    }
+
+    if ($fordaw_Form.fordaw_dnxhd.Checked) {
+        $fordaw_Form.fordaw_crf.Enabled = $false
+        $fordaw_Form.fordaw_Label1.ForeColor = [System.Drawing.Color]::DarkGray
+        $fordaw_Form.fordaw_crf_current.ForeColor = [System.Drawing.Color]::DarkGray
+        $fordaw_Form.fordaw_Label2.ForeColor = [System.Drawing.Color]::DarkGray
+        $fordaw_Form.fordaw_Label3.ForeColor = [System.Drawing.Color]::DarkGray
+        $fordaw_Form.fordaw_Label4.ForeColor = [System.Drawing.Color]::DarkGray
+    } else {
+        $fordaw_Form.fordaw_crf.Enabled = $true
+        $fordaw_Form.fordaw_Label1.ForeColor = [System.Drawing.Color]::Black
+        $fordaw_Form.fordaw_crf_current.ForeColor = [System.Drawing.Color]::Black
+        $fordaw_Form.fordaw_Label2.ForeColor = [System.Drawing.Color]::Black
+        $fordaw_Form.fordaw_Label3.ForeColor = [System.Drawing.Color]::Black
+        $fordaw_Form.fordaw_Label4.ForeColor = [System.Drawing.Color]::Black
+    }
+}
 
 $fordaw_Form.fordaw_open.add_Click({
     $OpenFileDialog1.Filter = "Video Files|*.mp4;*.avi;*.mov;*.mkv;*.flv;*.wmv;*.webm;*.m4v;*.3gp;*.3g2;*.mts;*.m2ts;*.ts;*.mxf;*.vob;*.ogv;*.divx;*.xvid;*.rm;*.rmvb;*.asf;*.amv;*.mpg;*.mpeg;*.mpe;*.mpv;*.m2v;*.svi;*.mkv;*.f4v;*.f4p;*.f4a;*.f4b"
@@ -116,23 +162,35 @@ $fordaw_Form.fordaw_open.add_Click({
 
             Set-ConsoleColor -r 63 -g 181 -b 224 -type "Foreground"
 
+            $frameRate = $videoInfo.streams[0].avg_frame_rate
+            if ($frameRate -match "(\d+)/(\d+)") {
+                $numerator = [double]$matches[1]
+                $denominator = [double]$matches[2]
+                $frameRateValue = $numerator / $denominator
+                if ($frameRateValue -eq [math]::Round($frameRateValue)) {
+                    $frameRateDisplay = [math]::Round($frameRateValue)
+                } else {
+                    $frameRateDisplay = "{0:N2}" -f $frameRateValue -replace ',', '.'
+                }
+            } else {
+                $frameRateDisplay = $frameRate
+            }
+
             Write-Host "$_"
             Write-Host "Codec:          $($videoInfo.streams[0].codec_long_name)"
             Write-Host "Profile:        $($videoInfo.streams[0].profile)"
             Write-Host "Level:          $($videoInfo.streams[0].level)"
-            Write-Host "Resolution:     $($videoInfo.streams[0].width) x $($videoInfo.streams[0].height)"
+            Write-Host "Resolution:     $($videoInfo.streams[0].width) x $($videoInfo.streams[0].height) - $($videoInfo.streams[0].field_order)"
+            Write-Host "Frame Rate:     $frameRateDisplay fps"
             Write-Host "Aspect Ratio:   $($videoInfo.streams[0].display_aspect_ratio)"
             Write-Host "Pixel Format:   $($videoInfo.streams[0].pix_fmt)"
             Write-Host "Color Space:    $($videoInfo.streams[0].color_space)"
-            Write-Host "Field Order:    $($videoInfo.streams[0].field_order)"
             Write-Host "Keyframes:      $($videoInfo.streams[0].refs)"
             Write-Host "B-frames:       $($videoInfo.streams[0].has_b_frames)"
-            Write-Host "Frame Rate:     $($videoInfo.streams[0].avg_frame_rate)"
             if ($videoInfo.streams[1]) {
                 Write-Host "Audio Codec:    $($videoInfo.streams[1].codec_long_name)"
                 Write-Host "Sample Rate:    $($videoInfo.streams[1].sample_rate) KHz"
-                Write-Host "Channels:       $($videoInfo.streams[1].channels)"
-                Write-Host "Channel Layout: $($videoInfo.streams[1].channel_layout)"
+                Write-Host "Channel Layout: $($videoInfo.streams[1].channel_layout), $($videoInfo.streams[1].channels) channels"
                 if ($videoInfo.streams[1].bit_rate) {
                     Write-Host "Audio Bit Rate: $($videoInfo.streams[1].bit_rate) kb/s"
                 }
