@@ -1,48 +1,101 @@
 Add-Type -AssemblyName System.Windows.Forms
 . (Join-Path $PSScriptRoot 'fordaw.designer.ps1')
 
+# Betűtípus elérési útvonal beállítása
 $fontPath = $PSScriptRoot + '\Tuffy-Regular.ttf' -replace '\\', '\\' -replace ':','\:'
 
+# FFmpeg és FFprobe binárisok
 $ffmpegBinary = "ffmpeg "
 $ffprobeBinary = "ffprobe "
-$hardwareAcceleration = "-hwaccel auto "
-$videoCodec = "-c:v libx264 "
-$pixelFormat = "-pix_fmt yuvj420p "
-$presetOption = "-preset fast "
-$profileOption = "-profile:v high "
-$levelOption = "-level:v 4.1 "
-$x264Params = "-x264-params keyint=12:min-keyint=1:ref=1:bframes=0:qcomp=0.8:aq-strength=0.5:dct-decimate=0:fast-pskip=0:deblock=-2,-2 "
-$rescale = ""#-vf scale=-1:720 "
 
-$filterComplexStart = "-filter_complex `"[0:v]"
-$filterDrawtext = "drawtext=fontfile='$fontPath'"
-$filterX = ":x=(w-text_w)/2"
-$filterY = ":y=h-(2*text_h)"
-$filterFontColor = ":fontcolor=0xeeeeeeff"
-$filterFontSize = ":fontsize=h/25"
-$filterBox = ":box=1"
-$filterBoxColor = ":boxcolor=0x3333333f,"
+# Változók inicializálása és ellenőrzések
+function InitializeVariables {
+    $global:hardwareAcceleration = "-hwaccel auto "
+    $global:videoCodec = "-c:v libx264 "
+    $global:pixelFormat = "-pix_fmt yuv420p "
+    
+    if ($fordaw_Form.fordaw_webquality.Checked) {
+        $global:presetOption = ""
+        $global:profileOption = "-profile:v high "
+        $global:levelOption = "-level:v 3.2 "
+        $global:x264Params = "-x264-params keyint=30:min-keyint=15:ref=1:bframes=2:b-pyramid=none "
+    } else {
+        $global:presetOption = "-preset fast "
+        $global:profileOption = "-profile:v high "
+        $global:levelOption = "-level:v 4.1 "
+        $global:x264Params = "-x264-params keyint=12:min-keyint=1:ref=1:bframes=0:qcomp=0.8:aq-strength=0.5:dct-decimate=0:fast-pskip=0:deblock=-2,-2 "
+    }
 
-$filterComplexTimecodeStart = "drawtext=fontfile='$fontPath'"
-$filterTimecodeX = ":x=(w-text_w)/2"
-$filterTimecodeY = ":y=h-(text_h+h/14*12.5)"
-$filterTimecodeFontColor = ":fontcolor=0xeeeeeeff"
-$filterTimecodeFontSize = ":fontsize=h/12"
-$filterTimecodeBox = ":box=1:boxborderw=10"
-$filterTimecodeBoxColor = ":boxcolor=0x3333333f"
-$filterTimecodeOption = ":tc24hmax=1"
-$filterComplexScale = ",scale=-1:720[out]`" "
+    if ($fordaw_Form.fordaw_preview.Checked) {
+        $global:durationOption = "-t 30 "
+    } else {
+        $global:durationOption = ""
+    }
 
-$mapOption = "-map [out] "
-$audioCodec = "-map 0:a? -c:a aac "
-$audioRate = "-ar 48k "
-$audioBitrate = "-b:a 256k "
-$swsFlags = "-sws_flags bicubic "
-$metadataOption = "-map_metadata 0 "
-$movFlags = "-movflags use_metadata_tags "
-$outputOverwrite = "-y "
+    $global:filterComplexStart = "-filter_complex `"[0:v]"
 
-# Function to get the framerate of the input video using ffprobe
+    if ($fordaw_Form.timecodeburnin.Checked) {
+        $global:filterDrawtext = "drawtext=fontfile='$fontPath'"
+        $global:filterX = ":x=(w-text_w)/2"
+        $global:filterY = ":y=h-(2*text_h)"
+        $global:filterFontColor = ":fontcolor=0xeeeeeeff"
+        $global:filterFontSize = ":fontsize=h/25"
+        $global:filterBox = ":box=1:boxborderw=5"
+        $global:filterComplexTimecodeStart = "drawtext=fontfile='$fontPath'"
+        $global:filterTimecodeX = ":x=(w-text_w)/2"
+        $global:filterTimecodeY = ":y=h-(text_h+h/14*12.5)"
+        $global:filterTimecodeFontColor = ":fontcolor=0xeeeeeeff"
+        $global:filterTimecodeFontSize = ":fontsize=h/12"
+        $global:filterTimecodeBox = ":box=1:boxborderw=10"
+        $global:filterTimecodeOption = ":tc24hmax=1,"
+        $global:filterTimecode = if (DropOrNot -framerate $framerate) {
+            ":timecode='00\:00\:00\;00'"
+        } else {
+            ":timecode='00\:00\:00\:00'"
+        }
+    
+        if ($fordaw_Form.timecodeburnin.Checked -and $fordaw_Form.fordaw_blackbg.Checked) {
+            $global:filterTimecodeBoxColor = ":boxcolor=0x323232ff"
+            $global:filterBoxColor = ":boxcolor=0x323232ff,"
+        } else {
+            $global:filterTimecodeBoxColor = ":boxcolor=0x3333333f"
+            $global:filterBoxColor = ":boxcolor=0x3333333f,"
+        }
+    } else {
+        $global:filterDrawtext = ""
+        $global:filterX = ""
+        $global:filterY = ""
+        $global:filterFontColor = ""
+        $global:filterFontSize = ""
+        $global:filterBox = ""
+        $global:filterComplexTimecodeStart = ""
+        $global:filterTimecodeX = ""
+        $global:filterTimecodeY = ""
+        $global:filterTimecodeFontColor = ""
+        $global:filterTimecodeFontSize = ""
+        $global:filterTimecodeBox = ""
+        $global:filterTimecodeOption = ""
+        $global:filterBoxColor = ""
+        $global:filterTimecodeBoxColor = ""
+        $global:filterTimecode = ""
+    }
+    $global:filterComplexScale = "scale=-1:720:in_range=full:out_range=limited[out]`" "
+    $global:mapOption = "-map [out] "
+    $global:audioCodec = "-map 0:a? -c:a aac "
+    if ($fordaw_Form.fordaw_webquality.Checked) {
+        $global:audioRate = "-ac 2 -ar 44100 "
+        $global:audioBitrate = "-b:a 128k "
+    } else {
+        $global:audioRate = "-ar 48k "
+        $global:audioBitrate = "-b:a 256k "
+    }
+    $global:swsFlags = "-sws_flags bicubic "
+    $global:metadataOption = "-map_metadata 0 "
+    $global:movFlags = "-movflags use_metadata_tags "
+    $global:outputOverwrite = "-y "
+}
+
+# Funkció a videó framerate-jének lekérésére ffprobe segítségével
 function Get-VideoFramerate {
     param (
         [string]$inputFile
@@ -56,7 +109,7 @@ function Get-VideoFramerate {
     }
 }
 
-# Function to check if the framerate is dropframe
+# Funkció a dropframe ellenőrzésére
 function DropOrNot {
     param (
         $framerate
@@ -64,6 +117,7 @@ function DropOrNot {
     return ($framerate -eq "30000/1001" -or $framerate -eq "60000/1001")
 }
 
+# Funkció a videó hosszának lekérésére ffprobe segítségével
 function Get-VideoDuration {
     param (
         [string]$inputFile
@@ -76,7 +130,7 @@ function Get-VideoDuration {
     }
 }
 
-# Function to get video information using ffprobe
+# Funkció a videó információinak lekérésére ffprobe segítségével
 function Get-VideoInfo {
     param (
         [string]$inputFile
@@ -96,7 +150,7 @@ function Get-VideoInfo {
     }
 }
 
-# Add event handlers after initialization
+# Eseménykezelők hozzáadása inicializálás után
 $fordaw_Form.add_Load({
     $fordaw_Form.fordaw_open.PerformClick()
     UpdateControlsState
@@ -121,6 +175,7 @@ $fordaw_Form.fordaw_dnxhd.add_CheckedChanged({
     UpdateControlsState
 })
 
+# Funkció a vezérlők állapotának frissítésére
 function UpdateControlsState {
     if ($fordaw_Form.fordaw_webquality.Checked) {
         $fordaw_Form.fordaw_dnxhd.Enabled = $false
@@ -151,6 +206,7 @@ function UpdateControlsState {
     }
 }
 
+# Fájl megnyitása gomb eseménykezelője
 $fordaw_Form.fordaw_open.add_Click({
     $OpenFileDialog1.Filter = "Video Files|*.mp4;*.avi;*.mov;*.mkv;*.flv;*.wmv;*.webm;*.m4v;*.3gp;*.3g2;*.mts;*.m2ts;*.ts;*.mxf;*.vob;*.ogv;*.divx;*.xvid;*.rm;*.rmvb;*.asf;*.amv;*.mpg;*.mpeg;*.mpe;*.mpv;*.m2v;*.svi;*.mkv;*.f4v;*.f4p;*.f4a;*.f4b"
     $OpenFileDialog1.Multiselect = $true
@@ -207,6 +263,7 @@ $fordaw_Form.fordaw_open.add_Click({
     }
 })
 
+# Fájl hozzáadása a várólistához gomb eseménykezelője
 $fordaw_Form.fordaw_addToCue.add_Click({
     if ($fordaw_Form.fordaw_fileList.Items.Count -eq 0) {
         Write-Host "No files selected for conversion."
@@ -224,39 +281,33 @@ $fordaw_Form.fordaw_addToCue.add_Click({
         $outputFile = [System.IO.Path]::Combine($outputDir, [System.IO.Path]::GetFileNameWithoutExtension($inputFile) + ".mp4")
         $videoname = [System.IO.Path]::GetFileNameWithoutExtension($inputFile)
         $inputOption = "-i `"$inputFile`" "
-        if ($fordaw_Form.fordaw_preview.Checked) {
-            $durationOption = "-t 30 "
-        } else {
-            $durationOption = ""
-        }
         $crfOption = "-crf $($fordaw_Form.fordaw_crf.Value) "
-        $filterText = ":text='" + $videoname + "' "
         
-        # Get the framerate of the input video
-        $framerate = Get-VideoFramerate -inputFile $inputFile
-        $filterR = ":r=$framerate "
-        $filterTimecodeR = ":r=$framerate "
+        if ($fordaw_Form.timecodeburnin.Checked) {
+            $filterText = ":text='" + $videoname + "'"
         
-        # Determine the timecode separator based on dropframe
-        if (DropOrNot -framerate $framerate) {
-            $filterTimecode = ":timecode='00\:00\:00\;00' "
-        } else {
-            $filterTimecode = ":timecode='00\:00\:00\:00' "
+            # Framerate lekérése a bemeneti videóból
+            $framerate = Get-VideoFramerate -inputFile $inputFile
+            $filterR = ":r=$framerate"
+            $filterTimecodeR = ":r=$framerate"
         }
         
-        $global:completeFfmpegCommand = $ffmpegBinary + $hardwareAcceleration + $inputOption + $durationOption + $videoCodec + $crfOption + $pixelFormat + $presetOption + $profileOption + $levelOption + $x264Params + $rescale + $filterComplexStart + $filterDrawtext + $filterText + $filterR + $filterX + $filterY + $filterFontColor + $filterFontSize + $filterBox + $filterBoxColor + $filterComplexTimecodeStart + $filterTimecode + $filterTimecodeR + $filterTimecodeX + $filterTimecodeY + $filterTimecodeFontColor + $filterTimecodeFontSize + $filterTimecodeBox + $filterTimecodeBoxColor + $filterTimecodeOption + $filterComplexScale + $mapOption + $audioCodec + $audioRate + $audioBitrate + $swsFlags + $vsyncOption + $metadataOption + $videoMetadata + $audioMetadata + $movFlags + $outputOverwrite + "`"" + $outputFile + "`""
+        InitializeVariables
+
+        $global:completeFfmpegCommand = $ffmpegBinary + $global:hardwareAcceleration + $inputOption + $global:durationOption + $global:videoCodec + $crfOption + $global:pixelFormat + $global:presetOption + $global:profileOption + $global:levelOption + $global:x264Params + $global:filterComplexStart + $global:filterDrawtext + $filterText + $filterR + $global:filterX + $global:filterY + $global:filterFontColor + $global:filterFontSize + $global:filterBox + $global:filterBoxColor + $global:filterComplexTimecodeStart + $global:filterTimecode + $filterTimecodeR + $global:filterTimecodeX + $global:filterTimecodeY + $global:filterTimecodeFontColor + $global:filterTimecodeFontSize + $global:filterTimecodeBox + $global:filterTimecodeBoxColor + $global:filterTimecodeOption + $global:filterComplexScale + $mapOption + $audioCodec + $audioRate + $audioBitrate + $swsFlags + $vsyncOption + $metadataOption + $videoMetadata + $audioMetadata + $movFlags + $outputOverwrite + "`"" + $outputFile + "`""
         
-        # Pass the command back to converter.ps1 using a global variable
+        # Parancs visszaadása a converter.ps1-nek egy globális változó segítségével
         $global:ffmpegCommands += $global:completeFfmpegCommand + "`n"
+        Write-Host $global:ffmpegCommands
     }
     
     $fordaw_Form.Close()
 })
 
-# Remove the form closing event handler to prevent the form from closing
+# Eseménykezelő eltávolítása a form bezárásához, hogy ne záródjon be a form
 $fordaw_Form.add_FormClosing({
     $Converter_Form.Show()
 })
 
-# Show the PowerShell window
+# PowerShell ablak megjelenítése
 $fordaw_Form.ShowDialog()

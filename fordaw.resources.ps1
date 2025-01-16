@@ -1,6 +1,7 @@
 & { $BinaryFormatter = New-Object -TypeName System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
  @{ 
 'Label1.Name' = 'Label1'
+'timecodeburnin.Name' = 'timecodeburnin'
 'fordaw_Label2.Name' = 'fordaw_Label2'
 'fordaw_Panel.Name' = 'fordaw_Panel'
 'fordaw_Label3.Name' = 'fordaw_Label3'
@@ -12,17 +13,16 @@
 'fordaw_addToCue.Name' = 'fordaw_addToCue'
 'fordaw_dnxhd.Name' = 'fordaw_dnxhd'
 'OpenFileDialog1.TrayLocation' = New-Object -TypeName System.Drawing.Point -ArgumentList @(17, 17)
-'Button1.Name' = 'Button1'
+'fordaw_blackbg.Name' = 'fordaw_blackbg'
 'fordaw_start.Name' = 'fordaw_start'
 'fordaw_preview.Name' = 'fordaw_preview'
 'fordaw_crf.Name' = 'fordaw_crf'
-'fordaw_blackbg.Name' = 'fordaw_blackbg'
-'CheckBox1.Name' = 'CheckBox1'
+'Button1.Name' = 'Button1'
 'OpenFileDialog1.Name' = 'OpenFileDialog1'
 'fordaw_fileList.Name' = 'fordaw_fileList'
+'CheckBox1.Name' = 'CheckBox1'
 'fordaw_h264.Name' = 'fordaw_h264'
 'fordaw_Label4.Name' = 'fordaw_Label4'
-'timecodeburnin.Name' = 'timecodeburnin'
 'fordaw_webquality.Name' = 'fordaw_webquality'
 }
 }

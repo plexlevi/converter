@@ -114,7 +114,7 @@ $timecodeburnin.UseVisualStyleBackColor = $true
 #
 $fordaw_Label4.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]430,[System.Int32]241))
 $fordaw_Label4.Name = [System.String]'fordaw_Label4'
-$fordaw_Label4.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]30,[System.Int32]19))
+$fordaw_Label4.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]42,[System.Int32]19))
 $fordaw_Label4.TabIndex = [System.Int32]9
 $fordaw_Label4.Text = [System.String]'Best'
 #
@@ -122,7 +122,7 @@ $fordaw_Label4.Text = [System.String]'Best'
 #
 $fordaw_Label3.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]273,[System.Int32]242))
 $fordaw_Label3.Name = [System.String]'fordaw_Label3'
-$fordaw_Label3.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]46,[System.Int32]18))
+$fordaw_Label3.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]54,[System.Int32]18))
 $fordaw_Label3.TabIndex = [System.Int32]8
 $fordaw_Label3.Text = [System.String]'Optimal'
 #
@@ -175,9 +175,9 @@ $fordaw_preview.UseVisualStyleBackColor = $true
 #
 #fordaw_addToCue
 #
-$fordaw_addToCue.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]207,[System.Int32]338))
+$fordaw_addToCue.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]193,[System.Int32]338))
 $fordaw_addToCue.Name = [System.String]'fordaw_addToCue'
-$fordaw_addToCue.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]75,[System.Int32]39))
+$fordaw_addToCue.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]92,[System.Int32]39))
 $fordaw_addToCue.TabIndex = [System.Int32]1
 $fordaw_addToCue.Text = [System.String]'ADD TO CUE'
 $fordaw_addToCue.UseVisualStyleBackColor = $true
@@ -186,7 +186,7 @@ $fordaw_addToCue.UseVisualStyleBackColor = $true
 #
 $fordaw_open.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]24,[System.Int32]12))
 $fordaw_open.Name = [System.String]'fordaw_open'
-$fordaw_open.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]86,[System.Int32]23))
+$fordaw_open.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]104,[System.Int32]23))
 $fordaw_open.TabIndex = [System.Int32]0
 $fordaw_open.Text = [System.String]'Open Files...'
 $fordaw_open.UseVisualStyleBackColor = $true
@@ -202,6 +202,7 @@ $fordaw_fileList.TabIndex = [System.Int32]6
 #
 $fordaw_Form.ClientSize = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]484,[System.Int32]389))
 $fordaw_Form.Controls.Add($fordaw_Panel)
+$fordaw_Form.Font = (New-Object -TypeName System.Drawing.Font -ArgumentList @([System.String]'Consolas',[System.Single]8.25,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,([System.Byte][System.Byte]0)))
 $fordaw_Form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedToolWindow
 $fordaw_Form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
 $fordaw_Form.Text = [System.String]'For DAW'
