@@ -1,0 +1,35 @@
+& { $BinaryFormatter = New-Object -TypeName System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+ @{ 
+'prepare_prefix.Name' = 'prepare_prefix'
+'prepare_mixdown_v.Name' = 'prepare_mixdown_v'
+'Button1.Name' = 'Button1'
+'prepare_fileList.Name' = 'prepare_fileList'
+'prepare_open.Name' = 'prepare_open'
+'OpenFileDialog2.Name' = 'OpenFileDialog2'
+'GroupBox1.Name' = 'GroupBox1'
+'Label2.Name' = 'Label2'
+'GroupBox2.Name' = 'GroupBox2'
+'prepare_resample.Name' = 'prepare_resample'
+'OpenFileDialog1.TrayLocation' = New-Object -TypeName System.Drawing.Point -ArgumentList @(17, 17)
+'GroupBox4.Name' = 'GroupBox4'
+'prepare_tp.Name' = 'prepare_tp'
+'prepare_bd.Name' = 'prepare_bd'
+'prepare_sr.Name' = 'prepare_sr'
+'CheckBox1.Name' = 'CheckBox1'
+'prepare_rebit.Name' = 'prepare_rebit'
+'prepare_lufs.Name' = 'prepare_lufs'
+'CheckBox2.Name' = 'CheckBox2'
+'OpenFileDialog2.TrayLocation' = New-Object -TypeName System.Drawing.Point -ArgumentList @(17, 17)
+'prepare_addToCue.Name' = 'prepare_addToCue'
+'Label1.Name' = 'Label1'
+'prepare_mixdown.Name' = 'prepare_mixdown'
+'prepare_normalize.Name' = 'prepare_normalize'
+'Label3.Name' = 'Label3'
+'GroupBox3.Name' = 'GroupBox3'
+'ComboBox1.Name' = 'ComboBox1'
+'ListBox1.Name' = 'ListBox1'
+'TextBox1.Name' = 'TextBox1'
+'OpenFileDialog1.Name' = 'OpenFileDialog1'
+'$this.Name' = 'prepare_Form'
+}
+}

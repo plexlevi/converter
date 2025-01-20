@@ -81,7 +81,7 @@ function Start-Conversion {
         throw "Could not extract input file from ffmpeg command."
     }
 
-    $totalDuration = if ($ffmpegCommand -match "-t\s+30") { 30 } elseif ($previewDuration -gt 0) { $previewDuration } else { Get-VideoDuration -inputFile $inputFile }
+    $totalDuration = if ($ffmpegCommand -match "-t\s+10") { 10 } elseif ($previewDuration -gt 0) { $previewDuration } else { Get-VideoDuration -inputFile $inputFile }
 
     $processInfo = New-Object System.Diagnostics.ProcessStartInfo
     $processInfo.FileName = "cmd.exe"
@@ -106,13 +106,15 @@ function Start-Conversion {
             $totalProcessedTime = ($currentFileIndex - 1) * $totalDuration + $currentSeconds
             $totalPercentComplete = [math]::Round(($totalProcessedTime / ($totalFiles * $totalDuration)) * 100)
             $elapsedTime = (Get-Date) - $startTime
-            $estimatedTotalTime = [TimeSpan]::FromSeconds(($elapsedTime.TotalSeconds / $totalProcessedTime) * ($totalFiles * $totalDuration))
-            $eta = $startTime.Add($estimatedTotalTime) - (Get-Date)
-            $totalStatusText = "{1}/{2}     {0}     {3}%     ETA: {4}" -f [System.IO.Path]::GetFileName($inputFile), $currentFileIndex, $totalFiles, $totalPercentComplete, $eta.ToString("hh\:mm\:ss")
-            
-            # Ensure totalPercentComplete is a valid integer
-            if ($totalPercentComplete -ge 0 -and $totalPercentComplete -le 100) {
-                Write-Progress -Activity "Overall progress" -Status $totalStatusText -PercentComplete $totalPercentComplete -Id 1
+            if ($totalProcessedTime -gt 0) {
+                $estimatedTotalTime = [TimeSpan]::FromSeconds(($elapsedTime.TotalSeconds / $totalProcessedTime) * ($totalFiles * $totalDuration))
+                $eta = $startTime.Add($estimatedTotalTime) - (Get-Date)
+                $totalStatusText = "{1}/{2}     {3}%     {0}     ETA: {4}" -f [System.IO.Path]::GetFileName($inputFile), $currentFileIndex, $totalFiles, $totalPercentComplete, $eta.ToString("hh\:mm\:ss")
+                
+                # Ensure totalPercentComplete is a valid integer
+                if ($totalPercentComplete -ge 0 -and $totalPercentComplete -le 100) {
+                    Write-Progress -Activity "Overall progress" -Status $totalStatusText -PercentComplete $totalPercentComplete -Id 1
+                }
             }
         }
     }
@@ -135,14 +137,44 @@ $Converter_Form.video_convert.add_Click({
     $global:ffmpegCommands = ""
 })
 
+# Eseménykezelő hozzáadása a Video Convert gombhoz
+$Converter_Form.prepare_27lufs.add_Click({
+    # Beolvassuk és futtatjuk a fordaw.ps1 szkriptet
+    $prepareScriptPath = Join-Path $scriptRoot 'prepare.ps1'
+    $Converter_Form.Hide()
+    . $prepareScriptPath
+    $Converter_Form.Show()
+
+    # Add the commands to the list box
+    $global:ffmpegCommands.Trim().Split("`n") | ForEach-Object {
+        $Converter_Form.ffmpegCommandList.Items.Add($_)
+    }
+    $global:ffmpegCommands = ""
+})
+
 # Eseménykezelő hozzáadása a Start Conversion gombhoz
 $Converter_Form.start_conversion.add_Click({
     $Converter_Form.Hide() # Hide the form while conversion is running
     $totalFiles = $Converter_Form.ffmpegCommandList.Items.Count
     $currentFileIndex = 0
+    $outputFolder = $null
+
     foreach ($command in $Converter_Form.ffmpegCommandList.Items) {
         $currentFileIndex++
         $previewDuration = 0 # Define the preview duration if needed
+
+        # Extract the input file name from the ffmpeg command
+        if ($command -match '-i\s+"([^"]+)"') {
+            $inputFile = $matches[1]
+        } elseif ($command -match "-i\s+(\S+)") {
+            $inputFile = $matches[1]
+        } else {
+            throw "Could not extract input file from ffmpeg command."
+        }
+
+        # Set the output folder based on the input file
+        $outputFolder = Split-Path -Parent $inputFile
+
         Start-Conversion -ffmpegCommand $command -currentFileIndex $currentFileIndex -totalFiles $totalFiles -previewDuration $previewDuration
     }
     Write-Host "All conversions completed."
@@ -150,6 +182,12 @@ $Converter_Form.start_conversion.add_Click({
     Write-Progress -Activity "Overall progress" -Status "Completed" -Completed -Id 1
     $Converter_Form.ffmpegCommandList.Items.Clear() # Clear the list after conversion
     $Converter_Form.Show() # Show the form again after conversion is finished
+
+    # Open the output folder if the checkbox is checked
+    if ($Converter_Form.open_outfolder.Checked -and $outputFolder) {
+        $opening = $outputFolder
+        Start-Process explorer.exe $opening
+    }
 
     # Play success sound as a background task
     Start-Job -ScriptBlock {

@@ -1,7 +1,6 @@
 & { $BinaryFormatter = New-Object -TypeName System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
  @{ 
 'Label1.Name' = 'Label1'
-'timecodeburnin.Name' = 'timecodeburnin'
 'fordaw_Label2.Name' = 'fordaw_Label2'
 'fordaw_Panel.Name' = 'fordaw_Panel'
 'fordaw_Label3.Name' = 'fordaw_Label3'
@@ -20,9 +19,10 @@
 'Button1.Name' = 'Button1'
 'OpenFileDialog1.Name' = 'OpenFileDialog1'
 'fordaw_fileList.Name' = 'fordaw_fileList'
-'CheckBox1.Name' = 'CheckBox1'
+'timecodeburnin.Name' = 'timecodeburnin'
+'fordaw_webquality.Name' = 'fordaw_webquality'
 'fordaw_h264.Name' = 'fordaw_h264'
 'fordaw_Label4.Name' = 'fordaw_Label4'
-'fordaw_webquality.Name' = 'fordaw_webquality'
+'CheckBox1.Name' = 'CheckBox1'
 }
 }

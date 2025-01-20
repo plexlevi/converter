@@ -170,7 +170,7 @@ $fordaw_preview.Location = (New-Object -TypeName System.Drawing.Point -ArgumentL
 $fordaw_preview.Name = [System.String]'fordaw_preview'
 $fordaw_preview.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]104,[System.Int32]24))
 $fordaw_preview.TabIndex = [System.Int32]2
-$fordaw_preview.Text = [System.String]'30s preview'
+$fordaw_preview.Text = [System.String]'10s preview'
 $fordaw_preview.UseVisualStyleBackColor = $true
 #
 #fordaw_addToCue

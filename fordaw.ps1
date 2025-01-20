@@ -27,7 +27,7 @@ function InitializeVariables {
     }
 
     if ($fordaw_Form.fordaw_preview.Checked) {
-        $global:durationOption = "-t 30 "
+        $global:durationOption = "-t 10 "
     } else {
         $global:durationOption = ""
     }
@@ -79,7 +79,7 @@ function InitializeVariables {
         $global:filterTimecodeBoxColor = ""
         $global:filterTimecode = ""
     }
-    $global:filterComplexScale = "scale=-1:720:in_range=full:out_range=limited[out]`" "
+    $global:filterComplexScale = "scale=w=1280:h=720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,scale=in_range=full:out_range=limited[out]`" "
     $global:mapOption = "-map [out] "
     $global:audioCodec = "-map 0:a? -c:a aac "
     if ($fordaw_Form.fordaw_webquality.Checked) {
@@ -89,9 +89,6 @@ function InitializeVariables {
         $global:audioRate = "-ar 48k "
         $global:audioBitrate = "-b:a 256k "
     }
-    $global:swsFlags = "-sws_flags bicubic "
-    $global:metadataOption = "-map_metadata 0 "
-    $global:movFlags = "-movflags use_metadata_tags "
     $global:outputOverwrite = "-y "
 }
 
@@ -294,7 +291,7 @@ $fordaw_Form.fordaw_addToCue.add_Click({
         
         InitializeVariables
 
-        $global:completeFfmpegCommand = $ffmpegBinary + $global:hardwareAcceleration + $inputOption + $global:durationOption + $global:videoCodec + $crfOption + $global:pixelFormat + $global:presetOption + $global:profileOption + $global:levelOption + $global:x264Params + $global:filterComplexStart + $global:filterDrawtext + $filterText + $filterR + $global:filterX + $global:filterY + $global:filterFontColor + $global:filterFontSize + $global:filterBox + $global:filterBoxColor + $global:filterComplexTimecodeStart + $global:filterTimecode + $filterTimecodeR + $global:filterTimecodeX + $global:filterTimecodeY + $global:filterTimecodeFontColor + $global:filterTimecodeFontSize + $global:filterTimecodeBox + $global:filterTimecodeBoxColor + $global:filterTimecodeOption + $global:filterComplexScale + $mapOption + $audioCodec + $audioRate + $audioBitrate + $swsFlags + $vsyncOption + $metadataOption + $videoMetadata + $audioMetadata + $movFlags + $outputOverwrite + "`"" + $outputFile + "`""
+        $global:completeFfmpegCommand = $ffmpegBinary + $global:hardwareAcceleration + $inputOption + $global:durationOption + $global:videoCodec + $crfOption + $global:pixelFormat + $global:presetOption + $global:profileOption + $global:levelOption + $global:x264Params + $global:filterComplexStart + $global:filterDrawtext + $filterText + $filterR + $global:filterX + $global:filterY + $global:filterFontColor + $global:filterFontSize + $global:filterBox + $global:filterBoxColor + $global:filterComplexTimecodeStart + $global:filterTimecode + $filterTimecodeR + $global:filterTimecodeX + $global:filterTimecodeY + $global:filterTimecodeFontColor + $global:filterTimecodeFontSize + $global:filterTimecodeBox + $global:filterTimecodeBoxColor + $global:filterTimecodeOption + $global:filterComplexScale + $mapOption + $audioCodec + $audioRate + $audioBitrate + $outputOverwrite + "`"" + $outputFile + "`""
         
         # Parancs visszaadása a converter.ps1-nek egy globális változó segítségével
         $global:ffmpegCommands += $global:completeFfmpegCommand + "`n"
