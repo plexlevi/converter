@@ -16,13 +16,14 @@
 'fordaw_start.Name' = 'fordaw_start'
 'fordaw_preview.Name' = 'fordaw_preview'
 'fordaw_crf.Name' = 'fordaw_crf'
-'Button1.Name' = 'Button1'
+'fordaw_force169.Name' = 'fordaw_force169'
+'CheckBox1.Name' = 'CheckBox1'
 'OpenFileDialog1.Name' = 'OpenFileDialog1'
 'fordaw_fileList.Name' = 'fordaw_fileList'
 'timecodeburnin.Name' = 'timecodeburnin'
-'fordaw_webquality.Name' = 'fordaw_webquality'
+'Button1.Name' = 'Button1'
 'fordaw_h264.Name' = 'fordaw_h264'
 'fordaw_Label4.Name' = 'fordaw_Label4'
-'CheckBox1.Name' = 'CheckBox1'
+'fordaw_webquality.Name' = 'fordaw_webquality'
 }
 }

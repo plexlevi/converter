@@ -1,5 +1,6 @@
 $fordaw_Form = New-Object -TypeName System.Windows.Forms.Form
 [System.Windows.Forms.Panel]$fordaw_Panel = $null
+[System.Windows.Forms.CheckBox]$fordaw_force169 = $null
 [System.Windows.Forms.RadioButton]$fordaw_dnxhd = $null
 [System.Windows.Forms.RadioButton]$fordaw_h264 = $null
 [System.Windows.Forms.CheckBox]$fordaw_webquality = $null
@@ -19,6 +20,7 @@ $fordaw_Form = New-Object -TypeName System.Windows.Forms.Form
 function InitializeComponent
 {
 $fordaw_Panel = (New-Object -TypeName System.Windows.Forms.Panel)
+$fordaw_force169 = (New-Object -TypeName System.Windows.Forms.CheckBox)
 $fordaw_dnxhd = (New-Object -TypeName System.Windows.Forms.RadioButton)
 $fordaw_h264 = (New-Object -TypeName System.Windows.Forms.RadioButton)
 $fordaw_webquality = (New-Object -TypeName System.Windows.Forms.CheckBox)
@@ -41,6 +43,7 @@ $fordaw_Form.SuspendLayout()
 #
 #fordaw_Panel
 #
+$fordaw_Panel.Controls.Add($fordaw_force169)
 $fordaw_Panel.Controls.Add($fordaw_dnxhd)
 $fordaw_Panel.Controls.Add($fordaw_h264)
 $fordaw_Panel.Controls.Add($fordaw_webquality)
@@ -60,6 +63,15 @@ $fordaw_Panel.Location = (New-Object -TypeName System.Drawing.Point -ArgumentLis
 $fordaw_Panel.Name = [System.String]'fordaw_Panel'
 $fordaw_Panel.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]488,[System.Int32]397))
 $fordaw_Panel.TabIndex = [System.Int32]0
+#
+#fordaw_force169
+#
+$fordaw_force169.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]24,[System.Int32]293))
+$fordaw_force169.Name = [System.String]'fordaw_force169'
+$fordaw_force169.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]104,[System.Int32]24))
+$fordaw_force169.TabIndex = [System.Int32]16
+$fordaw_force169.Text = [System.String]'Force 16:9'
+$fordaw_force169.UseVisualStyleBackColor = $true
 #
 #fordaw_dnxhd
 #
@@ -166,7 +178,7 @@ $fordaw_crf.Value = [System.Int32]16
 #
 #fordaw_preview
 #
-$fordaw_preview.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]24,[System.Int32]294))
+$fordaw_preview.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]24,[System.Int32]323))
 $fordaw_preview.Name = [System.String]'fordaw_preview'
 $fordaw_preview.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]104,[System.Int32]24))
 $fordaw_preview.TabIndex = [System.Int32]2
@@ -211,6 +223,7 @@ $fordaw_Panel.PerformLayout()
 ([System.ComponentModel.ISupportInitialize]$fordaw_crf).EndInit()
 $fordaw_Form.ResumeLayout($false)
 Add-Member -InputObject $fordaw_Form -Name fordaw_Panel -Value $fordaw_Panel -MemberType NoteProperty
+Add-Member -InputObject $fordaw_Form -Name fordaw_force169 -Value $fordaw_force169 -MemberType NoteProperty
 Add-Member -InputObject $fordaw_Form -Name fordaw_dnxhd -Value $fordaw_dnxhd -MemberType NoteProperty
 Add-Member -InputObject $fordaw_Form -Name fordaw_h264 -Value $fordaw_h264 -MemberType NoteProperty
 Add-Member -InputObject $fordaw_Form -Name fordaw_webquality -Value $fordaw_webquality -MemberType NoteProperty

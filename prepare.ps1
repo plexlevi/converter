@@ -161,6 +161,17 @@ $prepare_Form.prepare_open.add_Click({
     }
 })
 
+# Eseménykezelő hozzáadása a prepare_fileList elemek törléséhez
+$prepare_Form.prepare_fileList.add_KeyDown({
+    param ($sender, $e)
+    if ($e.KeyCode -eq [System.Windows.Forms.Keys]::Delete -or $e.KeyCode -eq [System.Windows.Forms.Keys]::Back) {
+        $selectedIndices = @($prepare_Form.prepare_fileList.SelectedIndices)
+        for ($i = $selectedIndices.Count - 1; $i -ge 0; $i--) {
+            $prepare_Form.prepare_fileList.Items.RemoveAt($selectedIndices[$i])
+        }
+    }
+})
+
 # Fájl hozzáadása a várólistához gomb eseménykezelője
 $prepare_Form.prepare_addToCue.add_Click({
     if ($prepare_Form.prepare_fileList.Items.Count -eq 0) {

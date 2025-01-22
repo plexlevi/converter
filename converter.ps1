@@ -196,6 +196,17 @@ $Converter_Form.start_conversion.add_Click({
     }
 })
 
+# Eseménykezelő hozzáadása a ffmpegCommandList elemek törléséhez
+$Converter_Form.ffmpegCommandList.add_KeyDown({
+    param ($sender, $e)
+    if ($e.KeyCode -eq [System.Windows.Forms.Keys]::Delete -or $e.KeyCode -eq [System.Windows.Forms.Keys]::Back) {
+        $selectedIndices = @($Converter_Form.ffmpegCommandList.SelectedIndices)
+        for ($i = $selectedIndices.Count - 1; $i -ge 0; $i--) {
+            $Converter_Form.ffmpegCommandList.Items.RemoveAt($selectedIndices[$i])
+        }
+    }
+})
+
 # Eseménykezelő hozzáadása a Converter_Form bezárásához
 $Converter_Form.add_FormClosing({
     # Üzenet kiírása a konzolban
