@@ -128,7 +128,7 @@ function Get-AudioInfo {
 
 # Fájl megnyitása gomb eseménykezelője
 $prepare_Form.prepare_open.add_Click({
-    $OpenFileDialog2.Filter = "Audio Files|*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a"
+    $OpenFileDialog2.Filter = "Audio and Video Files|*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.mp4;*.avi;*.mov;*.mkv;*.flv;*.wmv;*.webm;*.m4v;*.3gp;*.3g2;*.mts;*.m2ts;*.ts;*.mxf;*.vob;*.ogv;*.divx;*.xvid;*.rm;*.rmvb;*.asf;*.amv;*.mpg;*.mpeg;*.mpe;*.mpv;*.m2v;*.svi;*.f4v;*.f4p;*.f4a;*.f4b"
     $OpenFileDialog2.Multiselect = $true
     if ($OpenFileDialog2.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
         $prepare_Form.prepare_fileList.Items.Clear()

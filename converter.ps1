@@ -38,14 +38,14 @@ Set-ConsoleColor -r 255 -g 165 -b 0 -type "Foreground"
 
 # Köszöntő szöveg kiírása a konzolban
 Write-Host @"
- _____     __          __   _____                          _            
-|  __ \   /\ \        / /  / ____|                        | |           
-| |  | | /  \ \  /\  / /  | |     ___  _ ____   _____ _ __| |_ ___ _ __ 
-| |  | |/ /\ \ \/  \/ /   | |    / _ \| '_ \ \ / / _ \ '__| __/ _ \ '__|
-| |__| / ____ \  /\  /    | |___| (_) | | | \ V /  __/ |  | ||  __/ |   
-|_____/_/    \_\/  \/      \_____\___/|_| |_|\_/ \___|_|   \__\___|_|   
+  _____                          _              ______           _____     __          __  
+ / ____|                        | |            |  ____|         |  __ \   /\ \        / /  
+| |     ___  _ ____   _____ _ __| |_ ___ _ __  | |__ ___  _ __  | |  | | /  \ \  /\  / /__ 
+| |    / _ \| '_ \ \ / / _ \ '__| __/ _ \ '__| |  __/ _ \| '__| | |  | |/ /\ \ \/  \/ / __|
+| |___| (_) | | | \ V /  __/ |  | ||  __/ |    | | | (_) | |    | |__| / ____ \  /\  /\__ \
+ \_____\___/|_| |_|\_/ \___|_|   \__\___|_|    |_|  \___/|_|    |_____/_/    \_\/  \/ |___/
 "@
-Write-Host ([System.Text.Encoding]::UTF8.GetString([System.Text.Encoding]::Default.GetBytes("---------------------Created By Levente Géczy (2025)--------------------")))
+Write-Host ([System.Text.Encoding]::UTF8.GetString([System.Text.Encoding]::Default.GetBytes("---------------------Created By Levente Géczy (2025)------------------------")))
 Write-Host ""
 [System.Console]::ResetColor()
 
@@ -126,9 +126,9 @@ function Start-Conversion {
 $Converter_Form.video_convert.add_Click({
     # Beolvassuk és futtatjuk a fordaw.ps1 szkriptet
     $fordawScriptPath = Join-Path $scriptRoot 'fordaw.ps1'
-    $Converter_Form.Hide()
+    #$Converter_Form.Hide()
     . $fordawScriptPath
-    $Converter_Form.Show()
+    #$Converter_Form.Show()
 
     # Add the commands to the list box
     $global:ffmpegCommands.Trim().Split("`n") | ForEach-Object {
@@ -150,6 +150,20 @@ $Converter_Form.prepare_27lufs.add_Click({
         $Converter_Form.ffmpegCommandList.Items.Add($_)
     }
     $global:ffmpegCommands = ""
+})
+
+# Eseménykezelő hozzáadása a Replace Audio gombhoz
+$Converter_Form.replace_audio.add_Click({
+    # Beolvassuk és futtatjuk a replace_audio.ps1 szkriptet egy külön ablakban
+    $replaceAudioScriptPath = Join-Path $scriptRoot 'replace_audio.ps1'
+    Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$replaceAudioScriptPath`""
+})
+
+# Eseménykezelő hozzáadása az ffmpeg gombhoz
+$Converter_Form.ffmpeg_install.add_Click({
+    # Beolvassuk és futtatjuk az install_ffmpeg.ps1 szkriptet
+    $installFfmpegScriptPath = Join-Path $scriptRoot 'install_ffmpeg.ps1'
+    Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$installFfmpegScriptPath`""
 })
 
 # Eseménykezelő hozzáadása a Start Conversion gombhoz
