@@ -19,6 +19,7 @@ $Converter_Form.SuspendLayout()
 #
 #video_convert
 #
+$video_convert.FlatStyle = [System.Windows.Forms.FlatStyle]::Popup
 $video_convert.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]12,[System.Int32]12))
 $video_convert.Name = [System.String]'video_convert'
 $video_convert.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]81,[System.Int32]48))
@@ -28,7 +29,9 @@ $video_convert.UseVisualStyleBackColor = $true
 #
 #start_conversion
 #
-$start_conversion.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]208,[System.Int32]262))
+$start_conversion.Anchor = [System.Windows.Forms.AnchorStyles]::Bottom
+$start_conversion.FlatStyle = [System.Windows.Forms.FlatStyle]::Popup
+$start_conversion.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]206,[System.Int32]268))
 $start_conversion.Name = [System.String]'start_conversion'
 $start_conversion.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]75,[System.Int32]41))
 $start_conversion.TabIndex = [System.Int32]1
@@ -37,17 +40,22 @@ $start_conversion.UseVisualStyleBackColor = $true
 #
 #ffmpegCommandList
 #
+$ffmpegCommandList.Anchor = ([System.Windows.Forms.AnchorStyles][System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right)
+$ffmpegCommandList.BorderStyle = [System.Windows.Forms.BorderStyle]::None
 $ffmpegCommandList.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]12,[System.Int32]66))
 $ffmpegCommandList.Name = [System.String]'ffmpegCommandList'
 $ffmpegCommandList.ScrollAlwaysVisible = $true
-$ffmpegCommandList.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]460,[System.Int32]186))
+$ffmpegCommandList.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]458,[System.Int32]182))
 $ffmpegCommandList.TabIndex = [System.Int32]2
+$ffmpegCommandList.SelectionMode = [System.Windows.Forms.SelectionMode]::MultiExtended
 #
 #open_outfolder
 #
+$open_outfolder.Anchor = ([System.Windows.Forms.AnchorStyles][System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left)
 $open_outfolder.Checked = $true
 $open_outfolder.CheckState = [System.Windows.Forms.CheckState]::Checked
-$open_outfolder.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]12,[System.Int32]267))
+$open_outfolder.FlatStyle = [System.Windows.Forms.FlatStyle]::Popup
+$open_outfolder.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]12,[System.Int32]273))
 $open_outfolder.Name = [System.String]'open_outfolder'
 $open_outfolder.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]128,[System.Int32]32))
 $open_outfolder.TabIndex = [System.Int32]3
@@ -56,7 +64,9 @@ $open_outfolder.UseVisualStyleBackColor = $true
 #
 #prepare_27lufs
 #
-$prepare_27lufs.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]391,[System.Int32]12))
+$prepare_27lufs.Anchor = ([System.Windows.Forms.AnchorStyles][System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Right)
+$prepare_27lufs.FlatStyle = [System.Windows.Forms.FlatStyle]::Popup
+$prepare_27lufs.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]390,[System.Int32]12))
 $prepare_27lufs.Name = [System.String]'prepare_27lufs'
 $prepare_27lufs.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]81,[System.Int32]48))
 $prepare_27lufs.TabIndex = [System.Int32]4
@@ -65,6 +75,7 @@ $prepare_27lufs.UseVisualStyleBackColor = $true
 #
 #replace_audio
 #
+$replace_audio.FlatStyle = [System.Windows.Forms.FlatStyle]::Popup
 $replace_audio.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]99,[System.Int32]12))
 $replace_audio.Name = [System.String]'replace_audio'
 $replace_audio.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]81,[System.Int32]48))
@@ -74,7 +85,9 @@ $replace_audio.UseVisualStyleBackColor = $true
 #
 #ffmpeg_install
 #
-$ffmpeg_install.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]418,[System.Int32]262))
+$ffmpeg_install.Anchor = ([System.Windows.Forms.AnchorStyles][System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Right)
+$ffmpeg_install.FlatStyle = [System.Windows.Forms.FlatStyle]::Popup
+$ffmpeg_install.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]418,[System.Int32]268))
 $ffmpeg_install.Name = [System.String]'ffmpeg_install'
 $ffmpeg_install.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]54,[System.Int32]41))
 $ffmpeg_install.TabIndex = [System.Int32]6
@@ -83,7 +96,7 @@ $ffmpeg_install.UseVisualStyleBackColor = $true
 #
 #Converter_Form
 #
-$Converter_Form.ClientSize = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]484,[System.Int32]315))
+$Converter_Form.ClientSize = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]484,[System.Int32]321))
 $Converter_Form.Controls.Add($ffmpeg_install)
 $Converter_Form.Controls.Add($replace_audio)
 $Converter_Form.Controls.Add($prepare_27lufs)
@@ -92,8 +105,10 @@ $Converter_Form.Controls.Add($video_convert)
 $Converter_Form.Controls.Add($start_conversion)
 $Converter_Form.Controls.Add($ffmpegCommandList)
 $Converter_Form.Font = (New-Object -TypeName System.Drawing.Font -ArgumentList @([System.String]'Consolas',[System.Single]8.25,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,([System.Byte][System.Byte]0)))
-$Converter_Form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedSingle
 $Converter_Form.MaximizeBox = $false
+$Converter_Form.MaximumSize = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]1000,[System.Int32]800))
+$Converter_Form.MinimumSize = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]500,[System.Int32]360))
+$Converter_Form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
 $Converter_Form.Text = [System.String]'Converter'
 $Converter_Form.ResumeLayout($false)
 Add-Member -InputObject $Converter_Form -Name video_convert -Value $video_convert -MemberType NoteProperty

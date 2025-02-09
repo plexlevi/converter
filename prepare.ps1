@@ -1,11 +1,62 @@
 $OpenFileDialog1_FileOk = {
 }
+$prepare_addToCue_Click = {
+}
 Add-Type -AssemblyName System.Windows.Forms
 . (Join-Path $PSScriptRoot 'prepare.designer.ps1')
 
 # FFmpeg és FFprobe binárisok
 $ffmpegBinary = "ffmpeg "
 $ffprobeBinary = "ffprobe "
+
+# Konfigurációs fájl elérési útja
+$configFilePath = Join-Path $PSScriptRoot 'prepare_config.json'
+
+# Konfiguráció betöltése
+function LoadConfig {
+    if (Test-Path $configFilePath) {
+        $config = Get-Content $configFilePath | ConvertFrom-Json
+        $prepare_Form.prepare_mixdown.Checked = $config.prepare_mixdown
+        $prepare_Form.prepare_mixdown_v.SelectedIndex = $config.prepare_mixdown_v
+        $prepare_Form.prepare_lufs.SelectedIndex = $config.prepare_lufs
+        $prepare_Form.prepare_tp.SelectedIndex = $config.prepare_tp
+        $prepare_Form.prepare_normalize.Checked = $config.prepare_normalize
+        $prepare_Form.prepare_resample.Checked = $config.prepare_resample
+        $prepare_Form.prepare_sr.SelectedIndex = $config.prepare_sr
+        $prepare_Form.prepare_rebit.Checked = $config.prepare_rebit
+        $prepare_Form.prepare_bd.SelectedIndex = $config.prepare_bd
+        $prepare_Form.prepare_prefix.Text = $config.prepare_prefix
+        if ($config.windowSize -and $config.windowPosition) {
+            $prepare_Form.Size = New-Object System.Drawing.Size ($config.windowSize.Width, $config.windowSize.Height)
+            $prepare_Form.Location = New-Object System.Drawing.Point ($config.windowPosition.X, $config.windowPosition.Y)
+        }
+    }
+}
+
+# Konfiguráció mentése
+function SaveConfig {
+    $config = @{
+        prepare_mixdown = $prepare_Form.prepare_mixdown.Checked
+        prepare_mixdown_v = $prepare_Form.prepare_mixdown_v.SelectedIndex
+        prepare_lufs = $prepare_Form.prepare_lufs.SelectedIndex
+        prepare_tp = $prepare_Form.prepare_tp.SelectedIndex
+        prepare_normalize = $prepare_Form.prepare_normalize.Checked
+        prepare_resample = $prepare_Form.prepare_resample.Checked
+        prepare_sr = $prepare_Form.prepare_sr.SelectedIndex
+        prepare_rebit = $prepare_Form.prepare_rebit.Checked
+        prepare_bd = $prepare_Form.prepare_bd.SelectedIndex
+        prepare_prefix = $prepare_Form.prepare_prefix.Text
+        windowSize = @{
+            Width = $prepare_Form.Size.Width
+            Height = $prepare_Form.Size.Height
+        }
+        windowPosition = @{
+            X = $prepare_Form.Location.X
+            Y = $prepare_Form.Location.Y
+        }
+    }
+    $config | ConvertTo-Json | Set-Content $configFilePath
+}
 
 # Változók inicializálása és ellenőrzések
 function InitializeVariables {
@@ -25,7 +76,7 @@ function InitializeVariables {
     $lufs = $prepare_Form.prepare_lufs.Text.ToString()
     $tp = $prepare_Form.prepare_tp.Text.ToString()
     if ($prepare_Form.prepare_normalize.Checked -eq $true) {
-        $global:loudness = "-af loudnorm=I=-" + $lufs + ":LRA=8:TP=-" + $tp + ":linear=true "
+        $global:loudness = "-af loudnorm=I=" + $lufs + ":LRA=8:TP=" + $tp + ":linear=true "
     } else {
         $global:loudness = ""
     }
@@ -86,11 +137,12 @@ function CheckClicked {
 }
 
 $prepare_Form.add_Load({
-    $prepare_Form.prepare_open.PerformClick()
-    $prepare_Form.prepare_sr.SelectedIndex = 1
-    $prepare_Form.prepare_mixdown_v.SelectedIndex = 1
-    $prepare_Form.prepare_bd.SelectedIndex = 1
+    LoadConfig
     CheckClicked
+    # Ensure the form is within screen bounds
+    if ($prepare_Form.Location.X -lt 0 -or $prepare_Form.Location.Y -lt 0) {
+        $prepare_Form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterParent
+    }
 })
 
 $prepare_Form.prepare_normalize.add_CheckedChanged({
@@ -126,37 +178,47 @@ function Get-AudioInfo {
     }
 }
 
+# Támogatott kiterjesztések listája
+$supportedExtensions = @(".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".mp4", ".avi", ".mov", ".mkv", ".flv", ".wmv", ".webm", ".m4v", ".3gp", ".3g2", ".mts", ".m2ts", ".ts", ".mxf", ".vob", ".ogv", ".divx", ".xvid", ".rm", ".rmvb", ".asf", ".amv", ".mpg", ".mpeg", ".mpe", ".mpv", ".m2v", ".svi", ".f4v", ".f4p", ".f4a", ".f4b")
+
+# Fájl hozzáadása a listához és információk kiírása
+function AddFileToList {
+    param (
+        [string]$file
+    )
+    $prepare_Form.prepare_fileList.Items.Add($file)
+    $audioInfo = Get-AudioInfo -inputFile $file
+
+    Set-ConsoleColor -r 63 -g 181 -b 224 -type "Foreground"
+
+    Write-Host "$file"
+    Write-Host "Duration:       $($audioInfo.format.duration)"
+    Write-Host "File Size:      $($audioInfo.format.size) MB"
+    Write-Host "Format:         $($audioInfo.format.format_long_name)"
+    Write-Host "Audio Codec:    $($audioInfo.streams[0].codec_long_name)"
+    Write-Host "Sample Rate:    $($audioInfo.streams[0].sample_rate) KHz"
+    Write-Host "Channel Layout: $($audioInfo.streams[0].channel_layout), $($audioInfo.streams[0].channels) channels"
+    Write-Host "Bit Rate:       $($audioInfo.format.bit_rate) kb/s"
+    Write-Host "Language:       $($audioInfo.streams[0].tags.language)"
+    Write-Host "Title:          $($audioInfo.streams[0].tags.title)"
+    Write-Host "Album:          $($audioInfo.streams[0].tags.album)"
+    Write-Host "Artist:         $($audioInfo.streams[0].tags.artist)"
+    Write-Host "Genre:          $($audioInfo.streams[0].tags.genre)"
+    Write-Host "Track:          $($audioInfo.streams[0].tags.track)"
+    Write-Host "Date:           $($audioInfo.streams[0].tags.date)"
+    Write-Host ""
+    Write-Host ""
+
+    [System.Console]::ResetColor()
+}
+
 # Fájl megnyitása gomb eseménykezelője
 $prepare_Form.prepare_open.add_Click({
     $OpenFileDialog2.Filter = "Audio and Video Files|*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.mp4;*.avi;*.mov;*.mkv;*.flv;*.wmv;*.webm;*.m4v;*.3gp;*.3g2;*.mts;*.m2ts;*.ts;*.mxf;*.vob;*.ogv;*.divx;*.xvid;*.rm;*.rmvb;*.asf;*.amv;*.mpg;*.mpeg;*.mpe;*.mpv;*.m2v;*.svi;*.f4v;*.f4p;*.f4a;*.f4b"
     $OpenFileDialog2.Multiselect = $true
     if ($OpenFileDialog2.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-        $prepare_Form.prepare_fileList.Items.Clear()
         $OpenFileDialog2.FileNames | ForEach-Object { 
-            $prepare_Form.prepare_fileList.Items.Add($_)
-            $audioInfo = Get-AudioInfo -inputFile $_
-
-            Set-ConsoleColor -r 63 -g 181 -b 224 -type "Foreground"
-
-            Write-Host "$_"
-            Write-Host "Duration:       $($audioInfo.format.duration)"
-            Write-Host "File Size:      $($audioInfo.format.size) MB"
-            Write-Host "Format:         $($audioInfo.format.format_long_name)"
-            Write-Host "Audio Codec:    $($audioInfo.streams[0].codec_long_name)"
-            Write-Host "Sample Rate:    $($audioInfo.streams[0].sample_rate) KHz"
-            Write-Host "Channel Layout: $($audioInfo.streams[0].channel_layout), $($audioInfo.streams[0].channels) channels"
-            Write-Host "Bit Rate:       $($audioInfo.format.bit_rate) kb/s"
-            Write-Host "Language:       $($audioInfo.streams[0].tags.language)"
-            Write-Host "Title:          $($audioInfo.streams[0].tags.title)"
-            Write-Host "Album:          $($audioInfo.streams[0].tags.album)"
-            Write-Host "Artist:         $($audioInfo.streams[0].tags.artist)"
-            Write-Host "Genre:          $($audioInfo.streams[0].tags.genre)"
-            Write-Host "Track:          $($audioInfo.streams[0].tags.track)"
-            Write-Host "Date:           $($audioInfo.streams[0].tags.date)"
-            Write-Host ""
-            Write-Host ""
-
-            [System.Console]::ResetColor()
+            AddFileToList -file $_
         }
     }
 })
@@ -170,6 +232,35 @@ $prepare_Form.prepare_fileList.add_KeyDown({
             $prepare_Form.prepare_fileList.Items.RemoveAt($selectedIndices[$i])
         }
     }
+})
+
+# Drag and Drop eseménykezelők hozzáadása
+$prepare_Form.prepare_fileList.add_DragEnter({
+    param ($sender, $e)
+    if ($e.Data.GetDataPresent([System.Windows.Forms.DataFormats]::FileDrop)) {
+        $e.Effect = [System.Windows.Forms.DragDropEffects]::Copy
+    } else {
+        $e.Effect = [System.Windows.Forms.DragDropEffects]::None
+    }
+})
+
+$prepare_Form.prepare_fileList.add_DragDrop({
+    param ($sender, $e)
+    $files = $e.Data.GetData([System.Windows.Forms.DataFormats]::FileDrop)
+    foreach ($file in $files) {
+        $extension = [System.IO.Path]::GetExtension($file).ToLower()
+        if ($extension -in $supportedExtensions) {
+            AddFileToList -file $file
+        }
+    }
+})
+
+# Drag and Drop engedélyezése
+$prepare_Form.prepare_fileList.AllowDrop = $true
+
+# Fájlok listájának törlése gomb eseménykezelője
+$prepare_Form.delete_list.add_Click({
+    $prepare_Form.prepare_fileList.Items.Clear()
 })
 
 # Fájl hozzáadása a várólistához gomb eseménykezelője
@@ -209,13 +300,34 @@ $prepare_Form.prepare_addToCue.add_Click({
         $global:ffmpegCommands += $global:completeFfmpegCommand + "`n"
         Write-Host $global:ffmpegCommands
     }
-    
-    $prepare_Form.Close()
+    $Converter_Form.Show()
 })
 
 # Eseménykezelő eltávolítása a form bezárásához, hogy ne záródjon be a form
 $prepare_Form.add_FormClosing({
-    $Converter_Form.Show()
+    SaveConfig
+})
+
+# Konfiguráció törlése és form újratöltése
+$prepare_Form.restore_defaults.add_Click({
+    if (Test-Path $configFilePath) {
+        Remove-Item $configFilePath
+    }
+    $prepare_Form.prepare_mixdown.Checked = $false
+    $prepare_Form.prepare_mixdown_v.SelectedIndex = 0
+    $prepare_Form.prepare_lufs.SelectedIndex = 11
+    $prepare_Form.prepare_tp.SelectedIndex = 1
+    $prepare_Form.prepare_normalize.Checked = $false
+    $prepare_Form.prepare_resample.Checked = $false
+    $prepare_Form.prepare_sr.SelectedIndex = 1
+    $prepare_Form.prepare_rebit.Checked = $false
+    $prepare_Form.prepare_bd.SelectedIndex = 1
+    $prepare_Form.prepare_prefix.Text = ""
+    $prepare_Form.Size = New-Object System.Drawing.Size 590, 400
+    CheckClicked
+    $prepare_Form.Refresh()
+    # Az ablak középre helyezése
+    $prepare_Form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
 })
 
 # PowerShell ablak megjelenítése

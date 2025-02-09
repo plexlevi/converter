@@ -1,0 +1,18 @@
+{
+    "windowSize":  {
+                       "Height":  566,
+                       "Width":  781
+                   },
+    "fordaw_preview":  false,
+    "fordaw_blackbg":  false,
+    "timecodeburnin":  true,
+    "fordaw_crf_current":  "16",
+    "fordaw_dnxhd":  false,
+    "fordaw_webquality":  false,
+    "fordaw_force169":  false,
+    "fordaw_crf":  16,
+    "windowPosition":  {
+                           "Y":  289,
+                           "X":  507
+                       }
+}

@@ -8,6 +8,51 @@ $fontPath = $PSScriptRoot + '\Tuffy-Regular.ttf' -replace '\\', '\\' -replace ':
 $ffmpegBinary = "ffmpeg "
 $ffprobeBinary = "ffprobe "
 
+# Konfigurációs fájl elérési útja
+$configFilePath = Join-Path $PSScriptRoot 'fordaw_config.json'
+
+# Konfiguráció betöltése
+function LoadConfig {
+    if (Test-Path $configFilePath) {
+        $config = Get-Content $configFilePath | ConvertFrom-Json
+        $fordaw_Form.fordaw_webquality.Checked = $config.fordaw_webquality
+        $fordaw_Form.fordaw_preview.Checked = $config.fordaw_preview
+        $fordaw_Form.timecodeburnin.Checked = $config.timecodeburnin
+        $fordaw_Form.fordaw_blackbg.Checked = $config.fordaw_blackbg
+        $fordaw_Form.fordaw_dnxhd.Checked = $config.fordaw_dnxhd
+        $fordaw_Form.fordaw_crf.Value = $config.fordaw_crf
+        $fordaw_Form.fordaw_force169.Checked = $config.fordaw_force169
+        $fordaw_Form.fordaw_crf_current.Text = $config.fordaw_crf_current
+        if ($config.windowSize -and $config.windowPosition) {
+            $fordaw_Form.Size = New-Object System.Drawing.Size ($config.windowSize.Width, $config.windowSize.Height)
+            $fordaw_Form.Location = New-Object System.Drawing.Point ($config.windowPosition.X, $config.windowPosition.Y)
+        }
+    }
+}
+
+# Konfiguráció mentése
+function SaveConfig {
+    $config = @{
+        fordaw_webquality = $fordaw_Form.fordaw_webquality.Checked
+        fordaw_preview = $fordaw_Form.fordaw_preview.Checked
+        timecodeburnin = $fordaw_Form.timecodeburnin.Checked
+        fordaw_blackbg = $fordaw_Form.fordaw_blackbg.Checked
+        fordaw_dnxhd = $fordaw_Form.fordaw_dnxhd.Checked
+        fordaw_crf = $fordaw_Form.fordaw_crf.Value
+        fordaw_force169 = $fordaw_Form.fordaw_force169.Checked
+        fordaw_crf_current = $fordaw_Form.fordaw_crf_current.Text
+        windowSize = @{
+            Width = $fordaw_Form.Size.Width
+            Height = $fordaw_Form.Size.Height
+        }
+        windowPosition = @{
+            X = $fordaw_Form.Location.X
+            Y = $fordaw_Form.Location.Y
+        }
+    }
+    $config | ConvertTo-Json | Set-Content $configFilePath
+}
+
 # Változók inicializálása és ellenőrzések
 function InitializeVariables($inputFile) {
     $global:hardwareAcceleration = "-hwaccel auto "
@@ -122,7 +167,7 @@ function Get-VideoInfo {
 
 # Eseménykezelők hozzáadása inicializálás után
 $fordaw_Form.add_Load({
-    $fordaw_Form.fordaw_open.PerformClick()
+    LoadConfig
     UpdateControlsState
 })
 
@@ -176,6 +221,57 @@ function UpdateControlsState {
     }
 }
 
+# Fájl információinak kiírása
+function Write-FileInfo {
+    param (
+        [string]$file,
+        [object]$videoInfo
+    )
+    Set-ConsoleColor -r 63 -g 181 -b 224 -type "Foreground"
+
+    $frameRate = $videoInfo.streams[0].avg_frame_rate
+    if ($frameRate -match "(\d+)/(\d+)") {
+        $numerator = [double]$matches[1]
+        $denominator = [double]$matches[2]
+        $frameRateValue = $numerator / $denominator
+        if ($frameRateValue -eq [math]::Round($frameRateValue)) {
+            $frameRateDisplay = [math]::Round($frameRateValue)
+        } else {
+            $frameRateDisplay = "{0:N2}" -f $frameRateValue -replace ',', '.'
+        }
+    } else {
+        $frameRateDisplay = $frameRate
+    }
+
+    Write-Host "$file"
+    Write-Host "Codec:          $($videoInfo.streams[0].codec_long_name)"
+    Write-Host "Profile:        $($videoInfo.streams[0].profile)"
+    Write-Host "Level:          $($videoInfo.streams[0].level)"
+    Write-Host "Resolution:     $($videoInfo.streams[0].width) x $($videoInfo.streams[0].height) - $($videoInfo.streams[0].field_order)"
+    Write-Host "Frame Rate:     $frameRateDisplay fps"
+    Write-Host "Aspect Ratio:   $($videoInfo.streams[0].display_aspect_ratio)"
+    Write-Host "Pixel Format:   $($videoInfo.streams[0].pix_fmt)"
+    Write-Host "Color Space:    $($videoInfo.streams[0].color_space)"
+    Write-Host "Keyframes:      $($videoInfo.streams[0].refs)"
+    Write-Host "B-frames:       $($videoInfo.streams[0].has_b_frames)"
+    if ($videoInfo.streams[1]) {
+        Write-Host "Audio Codec:    $($videoInfo.streams[1].codec_long_name)"
+        Write-Host "Sample Rate:    $($videoInfo.streams[1].sample_rate) KHz"
+        Write-Host "Channel Layout: $($videoInfo.streams[1].channel_layout), $($videoInfo.streams[1].channels) channels"
+        if ($videoInfo.streams[1].bit_rate) {
+            Write-Host "Audio Bit Rate: $($videoInfo.streams[1].bit_rate) kb/s"
+        }
+    }
+    Write-Host "Format:         $($videoInfo.format.format_long_name)"
+    Write-Host "Duration:       $($videoInfo.format.duration)"
+    Write-Host "File Size:      $($videoInfo.format.size) MB"
+    Write-Host "Bit Rate:       $($videoInfo.format.bit_rate) kb/s"
+    Write-Host ""
+    Write-Host ""
+
+    [System.Console]::ResetColor()
+}
+
 # Fájl megnyitása gomb eseménykezelője
 $fordaw_Form.fordaw_open.add_Click({
     $OpenFileDialog1.Filter = "Video Files|*.mp4;*.avi;*.mov;*.mkv;*.flv;*.wmv;*.webm;*.m4v;*.3gp;*.3g2;*.mts;*.m2ts;*.ts;*.mxf;*.vob;*.ogv;*.divx;*.xvid;*.rm;*.rmvb;*.asf;*.amv;*.mpg;*.mpeg;*.mpe;*.mpv;*.m2v;*.svi;*.mkv;*.f4v;*.f4p;*.f4a;*.f4b"
@@ -185,50 +281,7 @@ $fordaw_Form.fordaw_open.add_Click({
         $OpenFileDialog1.FileNames | ForEach-Object { 
             $fordaw_Form.fordaw_fileList.Items.Add($_)
             $videoInfo = Get-VideoInfo -inputFile $_
-
-            Set-ConsoleColor -r 63 -g 181 -b 224 -type "Foreground"
-
-            $frameRate = $videoInfo.streams[0].avg_frame_rate
-            if ($frameRate -match "(\d+)/(\d+)") {
-                $numerator = [double]$matches[1]
-                $denominator = [double]$matches[2]
-                $frameRateValue = $numerator / $denominator
-                if ($frameRateValue -eq [math]::Round($frameRateValue)) {
-                    $frameRateDisplay = [math]::Round($frameRateValue)
-                } else {
-                    $frameRateDisplay = "{0:N2}" -f $frameRateValue -replace ',', '.'
-                }
-            } else {
-                $frameRateDisplay = $frameRate
-            }
-
-            Write-Host "$_"
-            Write-Host "Codec:          $($videoInfo.streams[0].codec_long_name)"
-            Write-Host "Profile:        $($videoInfo.streams[0].profile)"
-            Write-Host "Level:          $($videoInfo.streams[0].level)"
-            Write-Host "Resolution:     $($videoInfo.streams[0].width) x $($videoInfo.streams[0].height) - $($videoInfo.streams[0].field_order)"
-            Write-Host "Frame Rate:     $frameRateDisplay fps"
-            Write-Host "Aspect Ratio:   $($videoInfo.streams[0].display_aspect_ratio)"
-            Write-Host "Pixel Format:   $($videoInfo.streams[0].pix_fmt)"
-            Write-Host "Color Space:    $($videoInfo.streams[0].color_space)"
-            Write-Host "Keyframes:      $($videoInfo.streams[0].refs)"
-            Write-Host "B-frames:       $($videoInfo.streams[0].has_b_frames)"
-            if ($videoInfo.streams[1]) {
-                Write-Host "Audio Codec:    $($videoInfo.streams[1].codec_long_name)"
-                Write-Host "Sample Rate:    $($videoInfo.streams[1].sample_rate) KHz"
-                Write-Host "Channel Layout: $($videoInfo.streams[1].channel_layout), $($videoInfo.streams[1].channels) channels"
-                if ($videoInfo.streams[1].bit_rate) {
-                    Write-Host "Audio Bit Rate: $($videoInfo.streams[1].bit_rate) kb/s"
-                }
-            }
-            Write-Host "Format:         $($videoInfo.format.format_long_name)"
-            Write-Host "Duration:       $($videoInfo.format.duration)"
-            Write-Host "File Size:      $($videoInfo.format.size) MB"
-            Write-Host "Bit Rate:       $($videoInfo.format.bit_rate) kb/s"
-            Write-Host ""
-            Write-Host ""
-
-            [System.Console]::ResetColor()
+            Write-FileInfo -file $_ -videoInfo $videoInfo
         }
     }
 })
@@ -273,12 +326,32 @@ $fordaw_Form.fordaw_addToCue.add_Click({
         Write-Host $global:ffmpegCommands
     }
     
-    $fordaw_Form.Close()
+    #$fordaw_Form.Close()
 })
 
 # Eseménykezelő eltávolítása a form bezárásához, hogy ne záródjon be a form
 $fordaw_Form.add_FormClosing({
+    SaveConfig
     $Converter_Form.Show()
+})
+
+# Drag and drop eseménykezelők hozzáadása
+$fordaw_Form.AllowDrop = $true
+$fordaw_Form.add_DragEnter({
+    param ($sender, $e)
+    if ($e.Data.GetDataPresent([Windows.Forms.DataFormats]::FileDrop)) {
+        $e.Effect = [Windows.Forms.DragDropEffects]::Copy
+    }
+})
+
+$fordaw_Form.add_DragDrop({
+    param ($sender, $e)
+    $files = $e.Data.GetData([Windows.Forms.DataFormats]::FileDrop)
+    foreach ($file in $files) {
+        $fordaw_Form.fordaw_fileList.Items.Add($file)
+        $videoInfo = Get-VideoInfo -inputFile $file
+        Write-FileInfo -file $file -videoInfo $videoInfo
+    }
 })
 
 # PowerShell ablak megjelenítése

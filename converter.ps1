@@ -122,41 +122,72 @@ function Start-Conversion {
     $process.WaitForExit()
 }
 
+# Konfigurációs fájl elérési útja
+$configFilePath = Join-Path $scriptRoot 'converter_config.json'
+
+# Konfiguráció betöltése
+function LoadConfig {
+    if (Test-Path $configFilePath) {
+        $config = Get-Content $configFilePath | ConvertFrom-Json
+        $Converter_Form.open_outfolder.Checked = $config.open_outfolder
+        if ($config.windowSize -and $config.windowPosition) {
+            $Converter_Form.Size = New-Object System.Drawing.Size ($config.windowSize.Width, $config.windowSize.Height)
+            $Converter_Form.Location = New-Object System.Drawing.Point ($config.windowPosition.X, $config.windowPosition.Y)
+        }
+    }
+}
+
+# Konfiguráció mentése
+function SaveConfig {
+    $config = @{
+        open_outfolder = $Converter_Form.open_outfolder.Checked
+        windowSize = @{
+            Width = $Converter_Form.Size.Width
+            Height = $Converter_Form.Size.Height
+        }
+        windowPosition = @{
+            X = $Converter_Form.Location.X
+            Y = $Converter_Form.Location.Y
+        }
+    }
+    $config | ConvertTo-Json | Set-Content $configFilePath
+}
+
+# Function to add commands to the list and select the first item
+function Add-CommandsToList {
+    param (
+        [string]$commands
+    )
+    $commands.Trim().Split("`n") | ForEach-Object {
+        if ($_ -ne "") {
+            $Converter_Form.ffmpegCommandList.Items.Add($_)
+        }
+    }
+    $global:ffmpegCommands = ""
+}
+
 # Eseménykezelő hozzáadása a Video Convert gombhoz
 $Converter_Form.video_convert.add_Click({
     # Beolvassuk és futtatjuk a fordaw.ps1 szkriptet
     $fordawScriptPath = Join-Path $scriptRoot 'fordaw.ps1'
-    #$Converter_Form.Hide()
     . $fordawScriptPath
-    #$Converter_Form.Show()
-
-    # Add the commands to the list box
-    $global:ffmpegCommands.Trim().Split("`n") | ForEach-Object {
-        $Converter_Form.ffmpegCommandList.Items.Add($_)
-    }
-    $global:ffmpegCommands = ""
+    Add-CommandsToList -commands $global:ffmpegCommands
 })
 
 # Eseménykezelő hozzáadása a Video Convert gombhoz
 $Converter_Form.prepare_27lufs.add_Click({
     # Beolvassuk és futtatjuk a fordaw.ps1 szkriptet
     $prepareScriptPath = Join-Path $scriptRoot 'prepare.ps1'
-    $Converter_Form.Hide()
     . $prepareScriptPath
-    $Converter_Form.Show()
-
-    # Add the commands to the list box
-    $global:ffmpegCommands.Trim().Split("`n") | ForEach-Object {
-        $Converter_Form.ffmpegCommandList.Items.Add($_)
-    }
-    $global:ffmpegCommands = ""
+    Add-CommandsToList -commands $global:ffmpegCommands
 })
 
 # Eseménykezelő hozzáadása a Replace Audio gombhoz
 $Converter_Form.replace_audio.add_Click({
     # Beolvassuk és futtatjuk a replace_audio.ps1 szkriptet egy külön ablakban
     $replaceAudioScriptPath = Join-Path $scriptRoot 'replace_audio.ps1'
-    Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$replaceAudioScriptPath`""
+    . $replaceAudioScriptPath
+    Add-CommandsToList -commands $global:ffmpegCommands
 })
 
 # Eseménykezelő hozzáadása az ffmpeg gombhoz
@@ -221,13 +252,49 @@ $Converter_Form.ffmpegCommandList.add_KeyDown({
     }
 })
 
+# Drag and Drop eseménykezelők hozzáadása a ffmpegCommandList-hez
+$Converter_Form.ffmpegCommandList.add_MouseDown({
+    param ($sender, $e)
+    if ($e.Button -eq [System.Windows.Forms.MouseButtons]::Left) {
+        $selectedItem = $Converter_Form.ffmpegCommandList.SelectedItem
+        if ($null -ne $selectedItem) {
+            $Converter_Form.ffmpegCommandList.DoDragDrop($selectedItem, [System.Windows.Forms.DragDropEffects]::Move)
+        }
+    }
+})
+
+$Converter_Form.ffmpegCommandList.add_DragOver({
+    param ($sender, $e)
+    $e.Effect = [System.Windows.Forms.DragDropEffects]::Move
+})
+
+$Converter_Form.ffmpegCommandList.add_DragDrop({
+    param ($sender, $e)
+    $point = $Converter_Form.ffmpegCommandList.PointToClient([System.Drawing.Point]::new($e.X, $e.Y))
+    $index = $Converter_Form.ffmpegCommandList.IndexFromPoint($point)
+    if ($index -ge 0) {
+        $item = $Converter_Form.ffmpegCommandList.SelectedItem
+        $Converter_Form.ffmpegCommandList.Items.Remove($item)
+        $Converter_Form.ffmpegCommandList.Items.Insert($index, $item)
+        $Converter_Form.ffmpegCommandList.SelectedItem = $item
+    }
+})
+
+# Drag and Drop engedélyezése
+$Converter_Form.ffmpegCommandList.AllowDrop = $true
+
 # Eseménykezelő hozzáadása a Converter_Form bezárásához
 $Converter_Form.add_FormClosing({
+    SaveConfig
     # Üzenet kiírása a konzolban
     Write-Host "The software is closing... Bye! :)"
 
     # Konzol ablak bezárása, amikor a főablak bezáródik
     [System.Environment]::Exit(0)
+})
+
+$Converter_Form.add_Load({
+    LoadConfig
 })
 
 $Converter_Form.ShowDialog()

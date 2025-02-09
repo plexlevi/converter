@@ -1,0 +1,20 @@
+{
+    "prepare_lufs":  15,
+    "prepare_normalize":  true,
+    "prepare_mixdown":  true,
+    "prepare_prefix":  "4564",
+    "prepare_bd":  1,
+    "windowPosition":  {
+                           "Y":  208,
+                           "X":  208
+                       },
+    "windowSize":  {
+                       "Height":  500,
+                       "Width":  784
+                   },
+    "prepare_sr":  1,
+    "prepare_rebit":  true,
+    "prepare_tp":  1,
+    "prepare_mixdown_v":  1,
+    "prepare_resample":  true
+}
